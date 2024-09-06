@@ -1,0 +1,38 @@
+[versions]
+agp = "8.5.0"
+desugar_jdk_libs = "2.1.2"
+desugar_jdk_libsVersion = "2.0.3"
+junit = "4.13.2"
+junitVersion = "1.2.1"
+espressoCore = "3.6.1"
+appcompat = "1.7.0"
+material = "1.12.0"
+activity = "1.8.0"
+constraintlayout = "2.1.4"
+multidex = "2.0.1"
+playServicesOssLicenses = "17.1.0"
+rxbindingAppcompatV7 = "0.4.0"
+rxjava = "2.2.13"
+threetenabp = "1.4.6"
+threetenabpVersion = "1.4.7"
+
+[libraries]
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+desugar_jdk_libs-v203 = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libsVersion" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
+play-services-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
+rxbinding-appcompat-v7 = { module = "com.jakewharton.rxbinding:rxbinding-appcompat-v7", version.ref = "rxbindingAppcompatV7" }
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
+threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
+threetenabp-v147 = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabpVersion" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+

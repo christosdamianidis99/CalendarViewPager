@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CalendarViewPager</string>
+    <string name="calendar">Ημερολόγιο</string>
+    <string name="sunday">Κ</string>
+    <string name="monday">Δ</string>
+    <string name="tuesday">Τ</string>
+    <string name="wednesday">Τ</string>
+    <string name="thursday">Π</string>
+    <string name="friday">Π</string>
+    <string name="saturday">Σ</string>
+    <string name="day_sunday">Κυρ</string>
+    <string name="day_monday">Δευ</string>
+    <string name="day_tuesday">Τρι</string>
+    <string name="day_wednesday">Τετ</string>
+    <string name="day_thursday">Πέμ</string>
+    <string name="day_friday">Παρ</string>
+    <string name="day_saturday">Σάβ</string>
+</resources>

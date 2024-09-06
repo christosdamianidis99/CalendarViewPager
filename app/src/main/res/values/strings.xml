@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">CalendarViewPager</string>
+    <string name="calendar">Calendar</string>
+    <string name="sunday">S</string>
+    <string name="monday">M</string>
+    <string name="tuesday">T</string>
+    <string name="wednesday">W</string>
+    <string name="thursday">T</string>
+    <string name="friday">F</string>
+    <string name="saturday">S</string>
+    <string name="day_sunday">SUN</string>
+    <string name="day_monday">MON</string>
+    <string name="day_tuesday">TUE</string>
+    <string name="day_wednesday">WED</string>
+    <string name="day_thursday">THU</string>
+    <string name="day_friday">FRI</string>
+    <string name="day_saturday">SAT</string>
+</resources>
