@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Today option with an icon -->
+    <item
+        android:id="@+id/action_today"
+        android:title="Today"
+        android:icon="@drawable/calendar_today"
+        app:showAsAction="always" />
+
+    <!-- Other view options -->
+    <item
+        android:id="@+id/action_month_view"
+        android:title="Month View"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_week_view"
+        android:title="Week View"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_day_view"
+        android:title="Day View"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_list_view"
+        android:title="List View"
+        app:showAsAction="never" />
+
+</menu>

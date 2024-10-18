@@ -6,6 +6,7 @@ import static com.example.calendarviewpager.MainActivity.DAY_VIEW;
 import static com.example.calendarviewpager.MainActivity.MONTH_VIEW;
 import static com.example.calendarviewpager.MainActivity.WEEK_VIEW;
 import static com.example.calendarviewpager.MainActivity.daysStartingFromMonday;
+import static com.example.calendarviewpager.MainActivity.modeCalendar;
 import static com.example.calendarviewpager.MainActivity.monthsInOrder;
 import static com.example.calendarviewpager.MainActivity.weeksStartingFromMonday;
 
@@ -16,6 +17,8 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.mycalendar.R;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,7 +51,7 @@ public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewP
     @Override
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position) {
 
-        switch (MainActivity.CALENDAR_MODE) {
+        switch (modeCalendar) {
             case MONTH_VIEW: {
                 YearMonth positionDate = monthsInOrder.get(position);
                 nowMonth = daysInMonthArrayInOrder(positionDate);
@@ -76,7 +79,7 @@ public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewP
 
     @Override
     public int getItemCount() {
-        switch (MainActivity.CALENDAR_MODE) {
+        switch (modeCalendar) {
             case MONTH_VIEW:
                 return monthsInOrder.size();
             case WEEK_VIEW:

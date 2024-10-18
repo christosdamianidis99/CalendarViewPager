@@ -1,19 +1,121 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/crm_calendar_activity_coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:fitsSystemWindows="true"
+    tools:context="com.example.calendarviewpager.MainActivity">
 
-    <TextView
+    <RelativeLayout
+        android:id="@+id/parentRel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/crm_calendar_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
+            android:minHeight="?attr/actionBarSize"
+            app:contentInsetEnd="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetRight="0dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:subtitleTextColor="@color/line_odd"
+            app:titleTextColor="@color/line_odd" />
+        <LinearLayout
+            android:id="@+id/menu_options_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/crm_calendar_toolbar"
+            android:orientation="horizontal"
+
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/month_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+
+                android:text="Month"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/pal_blue"                android:padding="10dp"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/week_button"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/week_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Week"
+                android:textColor="@color/white"                android:backgroundTint="@color/pal_blue"                android:padding="10dp"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/day_button"
+                app:layout_constraintStart_toEndOf="@id/month_button" />
+
+            <Button
+                android:id="@+id/day_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Day"
+                android:textColor="@color/white"                android:backgroundTint="@color/pal_blue"
+                android:padding="10dp"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/list_button"
+                app:layout_constraintStart_toEndOf="@id/week_button" />
+
+            <Button
+                android:id="@+id/list_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="List"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/pal_blue"                android:padding="10dp"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/day_button" />
+        </LinearLayout>
+        <ListView
+            android:id="@+id/showListViewRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/menu_options_container"
+            android:visibility="gone" />
+
+
+        <FrameLayout
+            android:id="@+id/mainCalendarViewsRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/menu_options_container">
+
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+    </RelativeLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/activity_basic_primary_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:backgroundTint="@color/pal_blue"
+        android:src="@drawable/ic_add"
+        app:fabSize="normal"
+        app:layout_anchor="@id/showListViewRecyclerView"
+        app:layout_anchorGravity="bottom|right|end"
+        app:pressedTranslationZ="10dp"
+        app:tint="@color/white"
+        app:useCompatPadding="true" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

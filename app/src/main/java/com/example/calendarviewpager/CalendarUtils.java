@@ -1,4 +1,12 @@
 package com.example.calendarviewpager;
+
+import android.annotation.SuppressLint;
+import android.widget.TextView;
+
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -17,9 +25,57 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CalendarUtils {
+    public static final int DECS_FOR_CRM_DURATIONS = 2;
+    public static final String DECIMAL_FORMAT_FOR_ZERO_DECS = "###,###,###,###,##0";
 
+    public static final String DECIMAL_FORMAT = "###,###,###,###,##0.";
+    public static final String SET_AN_INITIAL_DATE = "2000-01-01T00:00:00";
+    public static final String DAY_PATTERN = "dd";
+    public static final String MONTH_PATTERN = "MM";
+    public static final String YEAR_PATTERN = "yyyy";
+    public static final String EXTRA_FULL_DATE_PATTERN = "EEEE dd/MM/yyyy";
+    public static final String FULL_DATE_PATTERN = "EE dd/MM/yyyy";
+    public static final String FULL_DATE_PATTERN_2 = "EE dd-MM-yyyy";
+    public static final String SHORT_DATE_PATTERN = "dd/MM/yyyy";
+    public static final String VERY_SHORT_DATE_PATTERN = "dd/MM/yy";
+    public static final String SHORT_DATE_TIME_PATTERN_WITH_ENTER = "dd/MM/yyyy\nHH:mm:ss";
+    public static final String TIME_PATTERN = "HH:mm";
+    public static final String INPUT_PATTERN_SHORT_DATE = "yyyy-MM-dd";
+    public static final String INPUT_PATTERN_FULL_DATE = "yyyy-MM-dd HH:mm:ss";
+    public static final String INPUT_PATTERN_FULL_DATE_WITH_ENTER = "yyyy-MM-dd\nHH:mm:ss";
+    public static final String INPUT_PATTERN_FULL_DATE_FOR_COMPARISON = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DATE_FOR_UPLOAD = "yyyy-MM-dd";
+    public static final String TIME_FOR_UPLOAD = "T00:00:00";
     public static LocalDate selectedDate = LocalDate.now();
+    public static void formatDecimalNumberInTextView(TextView textView, int decs, BigDecimal number){
+        textView.setText(decimals(decs).format(number));
+    }
+    public static DecimalFormat decimals(int decs){
+        // Every time  a new DecimalFormatSymbols object is created and it is initializing with Locale.getDefault values
+        // If the choice is eg 2 = 123456789.00 , formatSymbols have some properties, for unisoft formatSymbols.setDecimalSeparator('.');
+        // But when user wants to change the choice, he goes out of the tabs, in slide menu. So the next time he comes to the tabs, the formatSymbols object
+        // is initializing because it is a new object. And it is initializing with the Locale.getDefault values
+        DecimalFormatSymbols formatSymbolsForAdapter = new DecimalFormatSymbols(Locale.getDefault());
+        DecimalFormat df = new DecimalFormat();
+        df = getDecimalFormat(decs, formatSymbolsForAdapter);
+        return df;
+    }
+    public static String generateNumberOfDecimalPlaces(int decimalPlaces){
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < decimalPlaces; i++) {
+            s.append("0");  // in Decimal pattern '0' represents a digit even if it is not exist, and '#' represents a digit only if it is exists
+            // here i want standar number of decimals so i put '0' in pattern , so if the number is 5 it becomes  for unisoft 5.00 if we have to decimalPlaces
+        }
+        return s.toString();
+    }
 
+    public static DecimalFormat getDecimalFormat(int decs, DecimalFormatSymbols formatSymbolsForAdapter){
+        if (decs != 0) {
+            return new DecimalFormat(DECIMAL_FORMAT + generateNumberOfDecimalPlaces(decs), formatSymbolsForAdapter);
+        } else {  // if i don't have decimal places, i remove decimal seperator "." from the pattern
+            return new DecimalFormat(DECIMAL_FORMAT_FOR_ZERO_DECS + generateNumberOfDecimalPlaces(decs), formatSymbolsForAdapter);
+        }
+    }
     // Methods for formatting and retrieving month and year information
 
     public static String monthYearFromDateViewPager(YearMonth yearMonth) {
@@ -143,8 +199,42 @@ public class CalendarUtils {
 //        return formatter.format(date);
 //    }
 
+    public static boolean datesAreEqual(String date1, String date2){
+        // convert the strings to Date format
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat(INPUT_PATTERN_FULL_DATE_FOR_COMPARISON);
+        Date firstDate = new Date();
+        Date secondDate = new Date();
+        try{
+            firstDate = format.parse(date1);
+            secondDate = format.parse(date2);
+        }catch(ParseException e){
+            e.printStackTrace();
+        }
 
+        assert secondDate != null;
+        return secondDate.equals(firstDate);
+    }
+    public static String parseDateToAnOutputPattern(String time, String outputPattern, String inputPattern) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
 
+        Date date = null;
+        String str = null;
+
+        try {
+            date = inputFormat.parse(time);
+            str = outputFormat.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
+
+    public static String replaceTLetterInDatesWithSpaceOrEnter(String string, boolean replaceWithSpace){
+        // this because the date in Delphi has a format YYYY-MM-DDTHH:MM:SS
+        // here i replace the "T" with space " " or with a new line
+        return string.replace("T", replaceWithSpace ? " " : "\n");
+    }
 
     public static LocalDateTime convertStringToLocalDateTime(String dateString) {
         // Define the pattern of the input date string
@@ -158,8 +248,20 @@ public class CalendarUtils {
         return LocalDateTime.parse(dateString, formatter);
     }
 
-
-
+    public static String extractDate(String dbDateTime) {
+        // Split the string by "T" and return the first part (date)
+        if (dbDateTime != null && dbDateTime.contains("T")) {
+            return dbDateTime.split("T")[0];  // Returns the date part
+        }
+        return dbDateTime;  // Return original if it doesn't contain "T"
+    }
+    public static String extractTime(String dbDateTime) {
+        // Split the string by "T" and return the second part (time)
+        if (dbDateTime != null && dbDateTime.contains("T")) {
+            return dbDateTime.split("T")[1];  // Returns the time part
+        }
+        return dbDateTime;  // Return original if it doesn't contain "T"
+    }
     //-------------------------For ViewPagerMonth-------------------------
 
 

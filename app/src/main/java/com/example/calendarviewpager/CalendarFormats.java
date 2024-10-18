@@ -14,7 +14,9 @@ import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -23,6 +25,7 @@ import java.util.Locale;
 
 public class CalendarFormats {
     public static double screenYpotenuseInDp;
+
 
 
     public static String concatDate(String date) {

@@ -1,9 +1,110 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.CalendarViewPager" parent="Theme.Material3.DayNight.NoActionBar">
+<resources>
+    <style name="MyPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:textColor">@android:color/black</item> <!-- Menu item text color -->
+    </style>
+    <style name="NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+    <style name="Image" parent="ImageStyle"/>
+    <style name="ImageStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">@dimen/tab_images_margin_left</item>
+        <item name="android:layout_marginStart">@dimen/tab_images_margin_start</item>
+        <item name="android:layout_marginTop">@dimen/tab_images_margin_top</item>
+    </style>
+    <style name="TextViewAsValue" parent="TextViewAsValueBase"/>
+    <style name="TextViewAsValueBase">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">@dimen/text_size_title</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginLeft">@dimen/value_and_label_margin_left</item>
+        <item name="android:layout_marginStart">@dimen/value_and_label_margin_start</item>
+    </style>
+    <style name="CardViewAsValue" parent="TextViewAsValueBase">
+        <item name="android:layout_marginEnd">@dimen/value_and_label_margin_left</item>
+        <item name="android:layout_marginRight">@dimen/value_and_label_margin_left</item>
+    </style>
+    <style name="CardViewAsLabel" parent="TextViewAsValueBase">
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginLeft">0dp</item>
+    </style>
+    <style name="TextViewAsLabel" parent="TextViewAsLabelBase"/>
+    <style name="TextViewAsLabelBase">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:layout_marginStart">@dimen/value_and_label_margin_start</item>
+        <item name="android:layout_marginLeft">@dimen/value_and_label_margin_left</item>
+        <item name="android:layout_marginBottom">@dimen/value_and_label_margin_bottom</item>
+    </style>
+    <style name="CardViewAsLabelForEditTextsWithLeftMargin5dp" parent="TextViewAsValueBase">
+        <item name="android:layout_marginStart">5dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+    </style>
+    <style name="AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Base.Theme.Sales" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
+    <style name="Toolbar_Title_Text_Center" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
 
-    <style name="Theme.CalendarViewPager" parent="Base.Theme.CalendarViewPager" />
+    <style name="Theme.CalendarViewPagerTest" parent="Base.Theme.Sales" />
+
+    <style name="DaysOfWeekLayout" parent="Base.Theme.Sales">
+
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_below">@id/crm_calendar_toolbar</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+    <style name="DaysOfWeekLayoutWeek" parent="Base.Theme.Sales">
+
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_below">@id/crm_calendar_toolbar</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginStart">60dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <style name="TextViewForActionBar">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/line_odd</item>
+    </style>
+    <style name="TextViewForActionBarTitle" parent="TextViewForActionBar">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+    </style>
+    <style name="CalendarViewCustom" parent="Theme.AppCompat">
+        <item name="colorAccent">@color/gray_light</item>
+        <item name="colorPrimary">@color/pal_blue</item>
+        <item name="android:headerBackground">@color/pal_blue</item>
+        <!-- Set text color for the month and year navigation bar -->
+        <item name="android:textColorPrimary">@color/pal_blue</item>
+
+    </style>
+
+    <style name="CalendarViewDateCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@color/pal_blue</item>
+        <item name="android:weekNumberColor">@color/pal_blue</item>
+    </style>
+
+    <style name="CalendarViewWeekCustomText" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@color/pal_blue</item>
+    </style>
 </resources>

@@ -1,9 +1,9 @@
 package com.example.calendarviewpager;
 import static com.example.calendarviewpager.CalendarUtils.selectedDate;
-import static com.example.calendarviewpager.MainActivity.CALENDAR_MODE;
 import static com.example.calendarviewpager.MainActivity.DAY_VIEW;
 import static com.example.calendarviewpager.MainActivity.MONTH_VIEW;
 import static com.example.calendarviewpager.MainActivity.WEEK_VIEW;
+import static com.example.calendarviewpager.MainActivity.modeCalendar;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+
+import com.example.mycalendar.R;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -78,7 +80,7 @@ public class CalendarViews extends View {
     public CalendarViews(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        CalendarFormats.getScreenInches(MainActivity.MainActivity);
+        CalendarFormats.getScreenInches(MainActivity.myActivity);
         if (CalendarFormats.screenYpotenuseInDp >= 1120) {
             weAreInTablet = true;
         } else {
@@ -104,7 +106,7 @@ public class CalendarViews extends View {
         blackOutlinePaint.setAntiAlias(true);
         blackOutlinePaint.setStrokeWidth(2); // Set the stroke width (adjust as needed)
         // Additional properties based on modeCalendar
-        switch (CALENDAR_MODE) {
+        switch (modeCalendar) {
             case MONTH_VIEW:
                 initializePaintsForMonth();
                 break;
@@ -149,26 +151,26 @@ public class CalendarViews extends View {
         Typeface appTypeface = getTypeFaceFont(getContext());
 
         daysOfMonthPaint.setColor(getPrimaryColor());
-        daysOfMonthPaint.setTextSize(dpToPx(16) - dpToPx(5));
+        daysOfMonthPaint.setTextSize(getResources().getDimension(R.dimen.text_size_title) - dpToPx(5));
         daysOfMonthPaint.setAntiAlias(true); // Enable anti-aliasing
         if (appTypeface != null) {
             daysOfMonthPaint.setTypeface(appTypeface);
         }
         currentDayOfMonthColor.setColor(Color.WHITE);
-        currentDayOfMonthColor.setTextSize(dpToPx(16) - dpToPx(5));
+        currentDayOfMonthColor.setTextSize(getResources().getDimension(R.dimen.text_size_title)  - dpToPx(5));
         currentDayOfMonthColor.setAntiAlias(true); // Enable anti-aliasing
         currentDayOfMonthColor.setDither(true);
         if (appTypeface != null) {
             currentDayOfMonthColor.setTypeface(appTypeface);
         }
 
-        setTextPaint(Color.BLUE, dpToPx(16) - dpToPx((int) 7f),appTypeface);
+        setTextPaint(Color.BLUE, getResources().getDimension(R.dimen.text_size_title)  - dpToPx((int) 7f),appTypeface);
 
 
         setweekAndDailyEventsPaint(getPrimaryColor(),appTypeface);
         setDayPaint(getPrimaryColor(),appTypeface);
         setEventPaint(getPrimaryColor(),appTypeface);
-        setHourBackgroundPaint(Color.BLACK);
+        setHourBackgroundPaint(Color.WHITE);
 
         setRealTimePaint();
 
@@ -181,9 +183,9 @@ public class CalendarViews extends View {
         Typeface appTypeface = getTypeFaceFont(getContext());
 
         if (weAreInTablet) {
-            setTextPaint(Color.BLACK, dpToPx(16),appTypeface);
+            setTextPaint(Color.BLACK, getResources().getDimension(R.dimen.text_size_title) ,appTypeface);
         } else {
-            setTextPaint(Color.BLACK, dpToPx(16) - dpToPx((int) 5f),appTypeface);
+            setTextPaint(Color.BLACK, getResources().getDimension(R.dimen.text_size_title)  - dpToPx((int) 5f),appTypeface);
         }
         setweekAndDailyEventsPaint(getPrimaryColor(),appTypeface);
         setDayPaint(Color.WHITE,appTypeface);
@@ -195,7 +197,7 @@ public class CalendarViews extends View {
     private void initializePaintsForDay() {
         Typeface appTypeface = getTypeFaceFont(getContext());
 
-        setTextPaint(Color.WHITE, dpToPx(16),appTypeface);
+        setTextPaint(Color.WHITE, getResources().getDimension(R.dimen.text_size_title) ,appTypeface);
         setweekAndDailyEventsPaint(getPrimaryColor(),appTypeface);
         setDayPaint(Color.WHITE,appTypeface);
         setEventPaint(getPrimaryColor(),appTypeface);
@@ -296,9 +298,9 @@ public class CalendarViews extends View {
             weekDayHeight = dpToPx(1500);  // Example height for phones in week view
             dayHeight = dpToPx(1500);
         }
-        if (CALENDAR_MODE == MONTH_VIEW) {
+        if (modeCalendar == MONTH_VIEW) {
             setMeasuredDimension(widthMeasureSpec, monthHeight);
-        } else if (CALENDAR_MODE == WEEK_VIEW) {
+        } else if (modeCalendar == WEEK_VIEW) {
             setMeasuredDimension(widthMeasureSpec, weekDayHeight);
         } else {
             setMeasuredDimension(widthMeasureSpec, dayHeight);
@@ -339,14 +341,14 @@ public class CalendarViews extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         initialize();
-        if (CALENDAR_MODE == MONTH_VIEW) {
+        if (modeCalendar == MONTH_VIEW) {
             drawMonthHourBackground(canvas);
             if (weAreInTablet) {
                 drawMonthBoxesTablet(canvas);
             } else {
                 drawMonthBoxes(canvas);
             }
-        } else if (CALENDAR_MODE == WEEK_VIEW) {
+        } else if (modeCalendar == WEEK_VIEW) {
             // Draw the hour background
             drawWeekHourBackground(canvas);
             drawWeekHoursBoxes(canvas);
@@ -367,7 +369,7 @@ public class CalendarViews extends View {
 
                 canvas.drawRect(startX, 0, endX, endY, hourBackgroundPaint);
                 if (i == 5 | i == 6) {
-                    hourBackgroundPaint.setColor(Color.LTGRAY);
+                    hourBackgroundPaint.setColor(getResources().getColor(R.color.crm_color_LightGray));
                     canvas.drawRect(startX, 0, endX, endY, hourBackgroundPaint);
                 }
             }
@@ -669,7 +671,7 @@ public class CalendarViews extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (Objects.equals(CALENDAR_MODE, MONTH_VIEW)) {
+        if (Objects.equals(modeCalendar, MONTH_VIEW)) {
             float x = event.getX();
             float y = event.getY();
 
@@ -733,7 +735,7 @@ public class CalendarViews extends View {
                     return super.onTouchEvent(event);
             }
             return true; // Consume the event
-        } else if (Objects.equals(CALENDAR_MODE, WEEK_VIEW)) {
+        } else if (Objects.equals(modeCalendar, WEEK_VIEW)) {
             float x = event.getX();
             float y = event.getY();
             int action = event.getAction();
@@ -766,7 +768,7 @@ public class CalendarViews extends View {
             }
             return true; // Consume the event
 
-        } else if (Objects.equals(CALENDAR_MODE, DAY_VIEW)) {
+        } else if (Objects.equals(modeCalendar, DAY_VIEW)) {
             float x = event.getX();
             float y = event.getY();
             int action = event.getAction();
@@ -807,7 +809,7 @@ public class CalendarViews extends View {
     //----------------------------OnTouchMethods----------------------------//
     @Override
     public boolean performClick() {
-        if (CALENDAR_MODE == MONTH_VIEW) {
+        if (modeCalendar == MONTH_VIEW) {
 
             if (weAreInTablet) {
                 if (monthCounterOneInDayCell) {
@@ -834,10 +836,10 @@ public class CalendarViews extends View {
                 MainActivity.monthViewCellClicked = true;
                 handleDaySelection();
             }
-        } else if (CALENDAR_MODE == WEEK_VIEW) {
+        } else if (modeCalendar == WEEK_VIEW) {
 
             handleCrmJournalSelection();
-        } else if (CALENDAR_MODE == DAY_VIEW) {
+        } else if (modeCalendar == DAY_VIEW) {
             handleCrmJournalSelection();
         }
 
@@ -988,7 +990,7 @@ public class CalendarViews extends View {
 
                 canvas.drawRect(startX, startY, endX, endY, hourBackgroundPaint);
                 if (i == 5 | i == 6) {
-                    hourBackgroundPaint.setColor(Color.LTGRAY);
+                    hourBackgroundPaint.setColor(getResources().getColor(R.color.crm_color_LightGray));
                     canvas.drawRect(startX, 0, endX, endY, hourBackgroundPaint);
                 }
             }
@@ -1434,16 +1436,16 @@ public class CalendarViews extends View {
             this.myCanvas = canvas;
             initialize();
 
-            if (CALENDAR_MODE == MONTH_VIEW) {
+            if (modeCalendar == MONTH_VIEW) {
                 if (weAreInTablet) {
                     drawMonthHeaderTablet(canvas);
                 } else {
                     drawMonthHeader(canvas);
                 }
-            } else if (CALENDAR_MODE == WEEK_VIEW) {
+            } else if (modeCalendar == WEEK_VIEW) {
                 drawWeekHeader(canvas);
 
-            } else if (CALENDAR_MODE == DAY_VIEW) {
+            } else if (modeCalendar == DAY_VIEW) {
 
                 drawDayHeader(canvas);
 
@@ -1457,7 +1459,7 @@ public class CalendarViews extends View {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
             int desiredHeight = 0;
-            switch (CALENDAR_MODE) {
+            switch (modeCalendar) {
                 case MONTH_VIEW:
 
                     desiredHeight = dpToPx(20); // Default height for modeCalendar 0 in dp
@@ -1567,7 +1569,7 @@ public class CalendarViews extends View {
             // Common Paint objects
             Typeface appTypeface = getTypeFaceFont(getContext());
 
-            float textSizeTitle = dpToPx(16);
+            float textSizeTitle = dpToPx((int) getResources().getDimension(R.dimen.text_size_title));
             if (weAreInTablet) {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     // Here we are in Android version 8 or lower
@@ -2180,7 +2182,7 @@ public class CalendarViews extends View {
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
-            if (Objects.equals(CALENDAR_MODE, WEEK_VIEW)) {
+            if (Objects.equals(modeCalendar, WEEK_VIEW)) {
                 float x = event.getX();
                 float y = event.getY();
                 int action = event.getAction();
@@ -2254,7 +2256,7 @@ public class CalendarViews extends View {
 
                 }
                 return true; // Consume the event
-            } else if (Objects.equals(CALENDAR_MODE, DAY_VIEW)) {
+            } else if (Objects.equals(modeCalendar, DAY_VIEW)) {
 
 
                 float x = event.getX();
@@ -2417,9 +2419,9 @@ public class CalendarViews extends View {
                 stablePaint.setTypeface(appTypeface);
             }
             if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
-                stablePaint.setTextSize(dpToPx(16));
+                stablePaint.setTextSize(getResources().getDimension(R.dimen.text_size_title) );
             } else {
-                stablePaint.setTextSize(dpToPx(16) - 10);
+                stablePaint.setTextSize(getResources().getDimension(R.dimen.text_size_title)  - 10);
             }
 
 
@@ -2459,7 +2461,7 @@ public class CalendarViews extends View {
                 dayHeight = dpToPx(1500);
 
             }
-            switch (CALENDAR_MODE) {
+            switch (modeCalendar) {
 
                 case 1:
                     if (weAreInTablet) {

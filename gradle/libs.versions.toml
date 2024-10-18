@@ -1,33 +1,46 @@
 [versions]
+activityVersion = "1.9.2"
 agp = "8.5.0"
+converterGson = "2.6.1"
+core = "1.6.1"
 desugar_jdk_libs = "2.1.2"
 desugar_jdk_libsVersion = "2.0.3"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 appcompat = "1.7.0"
+lifecycleExtensions = "2.2.0"
 material = "1.12.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
 multidex = "2.0.1"
+navigationFragment = "2.8.2"
 playServicesOssLicenses = "17.1.0"
+retrofit = "2.9.0"
 rxbindingAppcompatV7 = "0.4.0"
 rxjava = "2.2.13"
 threetenabp = "1.4.6"
 threetenabpVersion = "1.4.7"
 
 [libraries]
+activity-v192 = { module = "androidx.activity:activity", version.ref = "activityVersion" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+core = { module = "androidx.test:core", version.ref = "core" }
 desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 desugar_jdk_libs-v203 = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libsVersion" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 multidex = { module = "androidx.multidex:multidex", version.ref = "multidex" }
+navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationFragment" }
+navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationFragment" }
 play-services-oss-licenses = { module = "com.google.android.gms:play-services-oss-licenses", version.ref = "playServicesOssLicenses" }
+retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 rxbinding-appcompat-v7 = { module = "com.jakewharton.rxbinding:rxbinding-appcompat-v7", version.ref = "rxbindingAppcompatV7" }
 rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
 threetenabp = { module = "com.jakewharton.threetenabp:threetenabp", version.ref = "threetenabp" }
