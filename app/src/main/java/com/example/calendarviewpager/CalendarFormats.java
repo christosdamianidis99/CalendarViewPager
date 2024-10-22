@@ -33,7 +33,7 @@ public class CalendarFormats {
         String[] parts = date.split("T");
         try {
             // Define the input and output date formats
-            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            SimpleDateFormat inputFormat = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
             SimpleDateFormat outputFormat = new SimpleDateFormat("EEE dd/MM/yyyy", new Locale("el", "GR"));
 
             // Parse the input date string
@@ -67,7 +67,7 @@ public class CalendarFormats {
     }
 
     public static String convertDateForDB(String inputDate) throws ParseException {
-        String outputFormat = "yyyy-MM-dd'T'00:00:00";
+        String outputFormat = "dd-MM-yyyy'T'00:00:00";
 
         // Define a date format for parsing the input date
         SimpleDateFormat inputDateFormat = new SimpleDateFormat("E dd/MM/yyyy", new Locale("el", "GR"));

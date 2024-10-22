@@ -102,13 +102,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initWidgets();
         PermissionManager.requestAllPermissionsIfNeeded(this);
+        db = new DatabaseHelper(this);
+        EventsData = db.getAllCalendarEvents();
         setCalendarEvent();
         setToolbar();
         setToolbarTitle();
         setFloatingActionButtons();
         myActivity = this;
-        db = new DatabaseHelper(this);
-        EventsData = db.getAllCalendarEvents();
+
         if (Objects.equals(modeCalendar, MONTH_VIEW) && !monthViewCellClicked) {
             setMonth();
         } else if (Objects.equals(modeCalendar, WEEK_VIEW) && !weekViewCellClicked) {

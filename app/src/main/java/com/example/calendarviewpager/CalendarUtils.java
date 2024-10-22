@@ -436,7 +436,7 @@ public class CalendarUtils {
 
     public static String convertLocalDateTimeToString(LocalDateTime dateTime) {
         // Define the pattern of the desired output date string
-        String pattern = "yyyy-MM-dd'T'HH:mm:ss";
+        String pattern = "dd-MM-yyyy'T'HH:mm";
 
         // Create a DateTimeFormatter with the defined pattern
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
