@@ -9,9 +9,11 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -34,7 +36,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class EventActivity extends AppCompatActivity {
-   private static final int EVENT_ACTIVITY_MENU_ADD_EVENT = Menu.FIRST + 1;
+    private static final int EVENT_ACTIVITY_MENU_ADD_EVENT = Menu.FIRST + 1;
     private static final int EVENT_ACTIVITY_MENU_EDIT_EVENT = Menu.FIRST + 2;
     private static final int EVENT_ACTIVITY_MENU_DELETE_EVENT = Menu.FIRST + 3;
 
@@ -51,6 +53,7 @@ public class EventActivity extends AppCompatActivity {
     private TextView tvComment;
     private EditText etDescr, etLocation, etComment;
     Spinner reminderSpinner;
+    Spinner colorSpinner;
     public static CalendarEvent positionEvent;
     public static boolean updateStartTimeHasBeenCalled;
     public static boolean updateDeliveryOrEndTimeHasBeenCalled;
@@ -60,6 +63,7 @@ public class EventActivity extends AppCompatActivity {
     private final SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yyyy'T'HH:mm", Locale.getDefault());
     androidx.appcompat.widget.Toolbar toolbar;
     private int reminderChoice;
+    private int colorChoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +75,64 @@ public class EventActivity extends AppCompatActivity {
         setToolbarTitle();
 
         // Create an ArrayAdapter using the string array and a default spinner layout
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+        ArrayAdapter<CharSequence> reminderAdapter = ArrayAdapter.createFromResource(this,
                 R.array.reminder_options, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        reminderSpinner.setAdapter(adapter);
+        reminderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        reminderSpinner.setAdapter(reminderAdapter);
+
+      String[]  colorNames = getResources().getStringArray(R.array.color_array);
+        int[] colorValues =  new int[]{
+                getResources().getColor(R.color.pal_blue),  // Default
+                getResources().getColor(R.color.red),
+                getResources().getColor(R.color.orange),
+                getResources().getColor(R.color.pink),
+                getResources().getColor(R.color.yellow),
+                getResources().getColor(R.color.green)
+        };
+
+        ArrayAdapter<String> colorAdapter = new ArrayAdapter<String>(this, R.layout.spinner_item_color, colorNames) {
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                // Check if convertView is null
+                if (convertView == null) {
+                    // Inflate a new view if it is null
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.spinner_item_color, parent, false);
+                }
+
+                // Get references to the TextView and View
+                TextView colorName = convertView.findViewById(R.id.color_name);
+                View colorSphere = convertView.findViewById(R.id.color_sphere);
+
+                // Set the text and background color
+                colorName.setText(getItem(position));
+                colorSphere.setBackgroundColor(colorValues[position]);
+
+                return convertView;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                // Check if convertView is null
+                if (convertView == null) {
+                    // Inflate a new view if it is null
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.spinner_item_color, parent, false);
+                }
+
+                // Get references to the TextView and View
+                TextView colorName = convertView.findViewById(R.id.color_name);
+                View colorSphere = convertView.findViewById(R.id.color_sphere);
+
+                // Set the text and background color
+                colorName.setText(getItem(position));
+                colorSphere.setBackgroundColor(colorValues[position]);
+
+                return convertView;
+            }
+        };
+
+// Set the adapter to the Spinner
+        colorSpinner.setAdapter(colorAdapter);
+
 
         // Set listeners to open pickers
         tvStartDate.setOnClickListener(v -> openDatePicker(true));
@@ -84,8 +142,7 @@ public class EventActivity extends AppCompatActivity {
 
         if (MainActivity.SHOW_MODE) {
             showTextViews();
-            if (tvLocation.getText()!= null || tvLocation.getText()!="")
-            {
+            if (tvLocation.getText() != null || tvLocation.getText() != "") {
                 tvLocation.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -100,11 +157,12 @@ public class EventActivity extends AppCompatActivity {
             setInitialDateTime();
             showEditTexts();
             reminderChoice();
+            colorChoice();
         } else {
             showEditTexts();
             reminderChoice();
             showEventForEdit();
-
+            colorChoice();
         }
 
 
@@ -129,11 +187,12 @@ public class EventActivity extends AppCompatActivity {
             updateDuration();
             tvLocation.setText(positionEvent.getLocation());
             reminderSpinner.setSelection(positionEvent.getReminder());
+            colorSpinner.setSelection(positionEvent.getColor());
             tvComment.setText(positionEvent.getComment());
         }
     }
-    private void showEventForEdit()
-    {
+
+    private void showEventForEdit() {
         for (int i = 0; i < MainActivity.EventsData.size(); i++) {
             if (MainActivity.EventsData.get(i).getId() == eventId) {
                 positionEvent = MainActivity.EventsData.get(i);
@@ -153,6 +212,9 @@ public class EventActivity extends AppCompatActivity {
             etLocation.setText(positionEvent.getLocation());
             reminderSpinner.setSelection(positionEvent.getReminder());
             reminderSpinner.setEnabled(true);
+
+            colorSpinner.setSelection(positionEvent.getColor());
+            colorSpinner.setEnabled(true);
             etComment.setText(positionEvent.getComment());
         }
     }
@@ -165,6 +227,7 @@ public class EventActivity extends AppCompatActivity {
         tvEndDate = findViewById(R.id.tv_end_date);
         tvEndTime = findViewById(R.id.tv_end_time);
         tvDuration = findViewById(R.id.tv_duration);
+
         tvLocation = findViewById(R.id.tv_location);
         tvComment = findViewById(R.id.tv_comment);
 
@@ -172,6 +235,7 @@ public class EventActivity extends AppCompatActivity {
         etDescr = findViewById(R.id.et_descr);
         etLocation = findViewById(R.id.et_location);
         reminderSpinner = findViewById(R.id.reminder_spinner);
+        colorSpinner = findViewById(R.id.spinner_color);
         etComment = findViewById(R.id.et_comment);
 
 
@@ -189,6 +253,7 @@ public class EventActivity extends AppCompatActivity {
         tvEndTime.setClickable(false);
 
         reminderSpinner.setEnabled(false);
+        colorSpinner.setEnabled(false);
 
         tvLocation.setVisibility(View.VISIBLE);
         etLocation.setVisibility(View.GONE);
@@ -203,6 +268,7 @@ public class EventActivity extends AppCompatActivity {
         etDescr.setVisibility(View.VISIBLE);
 
         reminderSpinner.setVisibility(View.VISIBLE);
+        colorSpinner.setVisibility(View.VISIBLE);
 
         tvLocation.setVisibility(View.GONE);
         etLocation.setVisibility(View.VISIBLE);
@@ -210,6 +276,7 @@ public class EventActivity extends AppCompatActivity {
         tvComment.setVisibility(View.GONE);
         etComment.setVisibility(View.VISIBLE);
     }
+
     private void openMaps(String location) {
         // Create a Uri from the location String
         Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(location));
@@ -313,6 +380,23 @@ public class EventActivity extends AppCompatActivity {
 
     }
 
+    private void colorChoice() {
+        colorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Handle the selected item, e.g., get reminder time
+                colorChoice = position;
+                // Do something with the selected reminder (e.g., save it or display it)
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do something when no item is selected
+            }
+        });
+
+    }
+
     public void setToolbar() {
 
         toolbar = findViewById(R.id.activity_event_toolbar);
@@ -369,14 +453,12 @@ public class EventActivity extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        if (MainActivity.NEW_MODE || MainActivity.EDIT_MODE)
-        {
+        if (MainActivity.NEW_MODE || MainActivity.EDIT_MODE) {
             menu.add(0, EVENT_ACTIVITY_MENU_ADD_EVENT, Menu.NONE, "Add event")
                     .setIcon(R.drawable.ic_add_event)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
-        }else
-        {
+        } else {
             menu.add(0, EVENT_ACTIVITY_MENU_EDIT_EVENT, Menu.NONE, "Edit event")
                     .setIcon(R.drawable.ic_edit_event)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
@@ -385,7 +467,6 @@ public class EventActivity extends AppCompatActivity {
                     .setIcon(R.drawable.ic_delete)
                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
-
 
 
         return super.onPrepareOptionsMenu(menu);
@@ -402,7 +483,7 @@ public class EventActivity extends AppCompatActivity {
                 addOrEditEvent();
                 break;
             case EVENT_ACTIVITY_MENU_EDIT_EVENT:
-                MainActivity.EDIT_MODE =true;
+                MainActivity.EDIT_MODE = true;
                 MainActivity.NEW_MODE = false;
                 MainActivity.SHOW_MODE = false;
                 CalendarFormats.reloadActivity(this);
@@ -419,7 +500,7 @@ public class EventActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(EventActivity.this)
                 .setTitle("Delete Event")
-                .setMessage("Are you sure you want to delete " + positionEvent.getDescr()+".")
+                .setMessage("Are you sure you want to delete " + positionEvent.getDescr() + ".")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     db.deleteEvent(eventId);
                     startActivity(new Intent(EventActivity.this, MainActivity.class));
@@ -429,6 +510,29 @@ public class EventActivity extends AppCompatActivity {
 
     }
 
+    public static int setColorOfCalendarEvent(CalendarEvent event) {
+        switch (event.getColor()) {
+            case 0:
+                return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.pal_blue);
+
+            case 1:
+                return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.red);
+
+            case 2:
+                return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.orange);
+
+            case 3:
+                return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.pink);
+
+            case 4:
+                return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.yellow);
+
+            case 5:
+                return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.green);
+
+        }
+        return MainActivity.myActivity.getApplicationContext().getResources().getColor(R.color.pal_blue);
+    }
 
     public static Calendar parseDateString(String dateString) {
         // Split the dateString by the "T" character
@@ -507,6 +611,7 @@ public class EventActivity extends AppCompatActivity {
             }
             event.setLocation(etLocation.getText().toString().trim());
             event.setReminder(reminderChoice);
+            event.setColor(colorChoice);
             event.setComment(etComment.getText().toString().trim());
             int newEventId = (int) db.insertEvent(event);
 
@@ -541,15 +646,16 @@ public class EventActivity extends AppCompatActivity {
             }
             updateEvent.setLocation(etLocation.getText().toString().trim());
             updateEvent.setReminder(reminderChoice);
+            updateEvent.setColor(colorChoice);
             updateEvent.setComment(etComment.getText().toString().trim());
 
             int updateId = db.updateEvent(updateEvent);
             AlarmManager.cancelAlarm(this, updateId);
             AlarmManager.setAlarm(this, updateId, updateEvent.getDescr(), updateEvent.getStartDate(), updateEvent.getStartTime(), String.valueOf(updateEvent.getReminder()));
 
-            MainActivity.SHOW_MODE=true;
-            MainActivity.EDIT_MODE=false;
-            MainActivity.NEW_MODE=false;
+            MainActivity.SHOW_MODE = true;
+            MainActivity.EDIT_MODE = false;
+            MainActivity.NEW_MODE = false;
             positionEvent = db.getEventById(updateId);
             MainActivity.EventsData = db.getAllCalendarEvents();
             CalendarFormats.reloadActivity(this);
@@ -560,14 +666,12 @@ public class EventActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (MainActivity.SHOW_MODE||MainActivity.NEW_MODE)
-        {
-            startActivity(new Intent(EventActivity.this,MainActivity.class));
-        }else
-        {
-            MainActivity.SHOW_MODE=true;
-            MainActivity.EDIT_MODE=false;
-            MainActivity.NEW_MODE=false;
+        if (MainActivity.SHOW_MODE || MainActivity.NEW_MODE) {
+            startActivity(new Intent(EventActivity.this, MainActivity.class));
+        } else {
+            MainActivity.SHOW_MODE = true;
+            MainActivity.EDIT_MODE = false;
+            MainActivity.NEW_MODE = false;
             CalendarFormats.reloadActivity(this);
             //super.onBackPressed();
         }

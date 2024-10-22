@@ -21,6 +21,7 @@ public class CalendarEvent {
 
     private Integer reminder;
 
+    private Integer color;
 
     private String comment;
 
@@ -28,6 +29,13 @@ public class CalendarEvent {
     private boolean isTemp;
     private boolean hasTemp;
 
+    public Integer getColor() {
+        return color;
+    }
+
+    public void setColor(Integer color) {
+        this.color = color;
+    }
 
     public CalendarEvent(){}
 

@@ -269,6 +269,38 @@
             </androidx.cardview.widget.CardView>
 
             <TextView
+                android:id="@+id/tv_color_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Select Color"
+                android:textStyle="bold" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_color"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:elevation="4dp"
+                app:cardCornerRadius="8dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <Spinner
+                        android:id="@+id/spinner_color"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@color/pal_blue"
+                        android:spinnerMode="dropdown" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+
+            <TextView
                 android:id="@+id/tv_location_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

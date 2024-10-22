@@ -30,4 +30,14 @@
         <item>1 hour before</item>
         <item>2 hours before</item>
     </string-array>
+
+        <string-array name="color_array">
+            <item>Default</item>
+            <item>Red</item>
+            <item>Orange</item>
+            <item>Pink</item>
+            <item>Yellow</item>
+            <item>Green</item>
+        </string-array>
+
 </resources>

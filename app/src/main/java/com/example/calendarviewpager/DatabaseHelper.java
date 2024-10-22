@@ -26,6 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_DURATION = "duration";
     private static final String COLUMN_LOCATION = "location";
     private static final String COLUMN_REMINDER = "reminder";
+    private static final String COLUMN_COLOR = "color";
     private static final String COLUMN_COMMENT = "comment";
 
     // SQL statement to create the events table
@@ -39,6 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + COLUMN_DURATION + " REAL, "
             + COLUMN_LOCATION + " TEXT, "
             + COLUMN_REMINDER + " INTEGER, "
+            + COLUMN_COLOR + " INTEGER, "
             + COLUMN_COMMENT + " TEXT);";
 
     public DatabaseHelper(Context context) {
@@ -71,6 +73,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DURATION, event.getDuration());
         values.put(COLUMN_LOCATION, event.getLocation());
         values.put(COLUMN_REMINDER, event.getReminder());
+        values.put(COLUMN_COLOR, event.getColor());
         values.put(COLUMN_COMMENT, event.getComment());
 
         // Insert the row
@@ -102,6 +105,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         event.setDuration(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_DURATION)));
         event.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION)));
         event.setReminder(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REMINDER)));
+        event.setColor(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COLOR)));
         event.setComment(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_COMMENT)));
 
         cursor.close();
@@ -127,6 +131,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 event.setDuration(cursor.getDouble(cursor.getColumnIndexOrThrow(COLUMN_DURATION)));
                 event.setLocation(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_LOCATION)));
                 event.setReminder(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_REMINDER)));
+                event.setColor(cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_COLOR)));
                 event.setComment(cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_COMMENT)));
 
                 // Add the event to the list
@@ -160,6 +165,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_DURATION, event.getDuration());
         values.put(COLUMN_LOCATION, event.getLocation());
         values.put(COLUMN_REMINDER, event.getReminder());
+        values.put(COLUMN_COLOR, event.getReminder());
         values.put(COLUMN_COMMENT, event.getComment());
 
         // Update the row
