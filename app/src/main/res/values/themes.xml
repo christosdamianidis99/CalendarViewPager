@@ -6,6 +6,16 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="Widget.AppCompat.Toolbar.Title" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@color/black</item> <!-- Black text color for better visibility -->
+        <item name="android:textSize">20sp</item> <!-- Larger text size for a clear title -->
+        <item name="android:textStyle">bold</item> <!-- Bold to make the title stand out -->
+        <item name="android:paddingLeft">16dp</item> <!-- Padding to give some space on the left -->
+        <item name="android:paddingRight">16dp</item> <!-- Padding to balance the layout -->
+        <item name="android:ellipsize">end</item> <!-- Truncate long titles with ellipsis -->
+        <item name="android:singleLine">true</item> <!-- Ensure the title stays on one line -->
+    </style>
+
     <style name="Image" parent="ImageStyle"/>
     <style name="ImageStyle">
         <item name="android:layout_width">wrap_content</item>
@@ -67,7 +77,7 @@
 
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_below">@id/crm_calendar_toolbar</item>
+        <item name="android:layout_below">@id/calendar_toolbar</item>
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginBottom">5dp</item>
         <item name="android:orientation">horizontal</item>
@@ -77,7 +87,7 @@
 
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_below">@id/crm_calendar_toolbar</item>
+        <item name="android:layout_below">@id/calendar_toolbar</item>
         <item name="android:layout_marginTop">5dp</item>
         <item name="android:layout_marginStart">60dp</item>
         <item name="android:orientation">horizontal</item>

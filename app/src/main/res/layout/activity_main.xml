@@ -1,7 +1,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/crm_calendar_activity_coordinator_layout"
+    android:id="@+id/calendar_activity_coordinator_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/crm_calendar_toolbar"
+            android:id="@+id/calendar_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/white"
@@ -29,9 +29,8 @@
             android:id="@+id/menu_options_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/crm_calendar_toolbar"
+            android:layout_below="@+id/calendar_toolbar"
             android:orientation="horizontal"
-
             android:gravity="center">
 
             <Button
@@ -39,7 +38,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-
                 android:text="Month"
                 android:textColor="@color/white"
                 android:backgroundTint="@color/pal_blue"                android:padding="10dp"
@@ -53,7 +51,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Week"
-                android:textColor="@color/white"                android:backgroundTint="@color/pal_blue"                android:padding="10dp"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/pal_blue"                android:padding="10dp"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toStartOf="@+id/day_button"
                 app:layout_constraintStart_toEndOf="@id/month_button" />

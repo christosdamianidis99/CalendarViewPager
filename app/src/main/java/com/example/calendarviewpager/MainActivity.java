@@ -19,7 +19,6 @@ import android.widget.CalendarView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -40,14 +39,13 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     //----------MENU_ITEMS--------------------
-    private static final int CRM_CALENDAR_ACTIVITY_MENU_REFRESH = Menu.FIRST + 1;
+    private static final int CALENDAR_ACTIVITY_MENU_REFRESH = Menu.FIRST + 1;
 
-    public static Activity MainActivity;
 
     //----------CALENDAR_MODES--------------------
-    public static boolean CRM_SHOW_MODE = false;
-    public static boolean CRM_EDIT_MODE = false;
-    public static boolean CRM_NEW_MODE = false;
+    public static boolean SHOW_MODE = false;
+    public static boolean EDIT_MODE = false;
+    public static boolean NEW_MODE = false;
 
     //----------CALENDAR_VIEWS--------------------
     public static final int MONTH_VIEW = 0;
@@ -69,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager2 viewPager;
 
-        Button monthViewBtn,weekViewBtn,dayViewBtn,listViewBtn;
+    Button monthViewBtn, weekViewBtn, dayViewBtn, listViewBtn;
     public static int initialPosition;
 
     public static CalendarEvent selectedCalendarEvent;
@@ -79,9 +77,9 @@ public class MainActivity extends AppCompatActivity {
 
     public static int modeCalendar;
 
-    //-----------------CRM_JOURNALS------------------
+    //-----------------EVENTS------------------
 
-    public static ArrayList<CalendarEvent> crmJournalsData = new ArrayList<>();
+    public static ArrayList<CalendarEvent> EventsData = new ArrayList<>();
     public static ArrayList<CalendarEvent> TempEvents = new ArrayList<>();
 
     //-----------------STATE_TO_OPEN_LISTVIEW------------------
@@ -103,13 +101,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initWidgets();
-        setCRMjournal();
+        PermissionManager.requestAllPermissionsIfNeeded(this);
+        setCalendarEvent();
         setToolbar();
         setToolbarTitle();
         setFloatingActionButtons();
         myActivity = this;
         db = new DatabaseHelper(this);
-        crmJournalsData = db.getAllCalendarEvents();
+        EventsData = db.getAllCalendarEvents();
         if (Objects.equals(modeCalendar, MONTH_VIEW) && !monthViewCellClicked) {
             setMonth();
         } else if (Objects.equals(modeCalendar, WEEK_VIEW) && !weekViewCellClicked) {
@@ -125,52 +124,37 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        monthViewBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                monthViewCellClicked = false;
-                weekViewCellClicked = false;
-                setMonth();
-            }
+        monthViewBtn.setOnClickListener(v -> {
+            monthViewCellClicked = false;
+            weekViewCellClicked = false;
+            setMonth();
         });
-weekViewBtn.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-        monthViewCellClicked = false;
-        weekViewCellClicked = false;
-        setWeek();
-    }
-});
-dayViewBtn.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-        monthViewCellClicked = false;
-        weekViewCellClicked = false;
-        setDaily();
-    }
-});
-listViewBtn.setOnClickListener(new View.OnClickListener() {
-    @Override
-    public void onClick(View v) {
-        monthViewCellClicked = false;
-        weekViewCellClicked = false;
-        viewListViewItems();
-    }
-});
+        weekViewBtn.setOnClickListener(v -> {
+            monthViewCellClicked = false;
+            weekViewCellClicked = false;
+            setWeek();
+        });
+        dayViewBtn.setOnClickListener(v -> {
+            monthViewCellClicked = false;
+            weekViewCellClicked = false;
+            setDaily();
+        });
+        listViewBtn.setOnClickListener(v -> {
+            monthViewCellClicked = false;
+            weekViewCellClicked = false;
+            viewListViewItems();
+        });
         viewPagerRegister();
 
 
     }
 
+
+
     //----------CalendarView-PopUpWindow-----------------
     private void startToolbarCalendarView() {
         if (!(modeCalendar == LISTVIEW_VIEW || modeCalendar == MONTH_VIEW)) {
-            toolbar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showCalendarPopup(toolbar);
-                }
-            });
+            toolbar.setOnClickListener(v -> showCalendarPopup(toolbar));
         } else {
             toolbar.setOnClickListener(null);
         }
@@ -186,29 +170,25 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
 
         // Set the OnDateChangeListener for the CalendarView
-        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                LocalDate calendarViewSelectedDate = LocalDate.of(year, month + 1, dayOfMonth); // Note: month is zero-based
+        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            LocalDate calendarViewSelectedDate = LocalDate.of(year, month + 1, dayOfMonth); // Note: month is zero-based
 
-                // Get the start of the day for the selected date
-                LocalDateTime startOfDay = calendarViewSelectedDate.atStartOfDay();
-                selectedDate = startOfDay.toLocalDate();
+            // Get the start of the day for the selected date
+            LocalDateTime startOfDay = calendarViewSelectedDate.atStartOfDay();
+            selectedDate = startOfDay.toLocalDate();
 
-                switch (modeCalendar) {
-                    case 1:
-                        setWeek();
-                        break;
-                    case 2:
-                        setDaily();
-                        break;
-                    default:
-                        setMonth();
-                        break;
-                }
-//                dismissCalendarPopup();
+            switch (modeCalendar) {
+                case 1:
+                    setWeek();
+                    break;
+                case 2:
+                    setDaily();
+                    break;
+                default:
+                    setMonth();
+                    break;
             }
-
+//                dismissCalendarPopup();
         });
 
         // Create the popup window
@@ -218,14 +198,11 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
 
         // Set the callback to adjust the layout when the popup window is dismissed
-        calendarPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                // Adjust the layout when the popup window is dismissed
-                adjustLayoutForPopup(false, contentView);
-                isCalendarPopUpViewPressed = false;
-                setToolbarTitle();
-            }
+        calendarPopup.setOnDismissListener(() -> {
+            // Adjust the layout when the popup window is dismissed
+            adjustLayoutForPopup(false, contentView);
+            isCalendarPopUpViewPressed = false;
+            setToolbarTitle();
         });
 
         // Show the popup window below the anchor view
@@ -237,18 +214,12 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
     }
 
-    // Method to check if there are events for a given date
-    private boolean hasEventsForDate(LocalDate date) {
-        // Check if there are events associated with the given date
-        for (CalendarEvent journalData : crmJournalsData) {
-            LocalDate eventDate = CalendarUtils.convertStringToLocalDateTime(journalData.getStartDate()).toLocalDate();
-            if (eventDate.equals(date)) {
-                return true; // Event found for the given date
-            }
-        }
-        return false; // No event found for the given date
-    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        PermissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
 
     private void adjustLayoutForPopup(boolean popupShown, View contentView) {
 //        FrameLayout
@@ -263,9 +234,6 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
                     public void onGlobalLayout() {
                         // Remove the listener to prevent it from being called multiple times
                         contentView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                        // Now the layout is drawn, get the height
-                        int popupHeight = contentView.getHeight();
 
                         // Set layout parameters to move the FrameLayout below the popup window
                         RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
@@ -308,10 +276,10 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
     }
 
     public void initWidgets() {
-        monthViewBtn=findViewById(R.id.month_button);
-        weekViewBtn=findViewById(R.id.week_button);
-        dayViewBtn=findViewById(R.id.day_button);
-        listViewBtn=findViewById(R.id.list_button);
+        monthViewBtn = findViewById(R.id.month_button);
+        weekViewBtn = findViewById(R.id.week_button);
+        dayViewBtn = findViewById(R.id.day_button);
+        listViewBtn = findViewById(R.id.list_button);
 
         viewPager = findViewById(R.id.viewPager);
         showListViewRecyclerView = findViewById(R.id.showListViewRecyclerView);
@@ -322,7 +290,7 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
     public void setToolbar() {
 
-        toolbar = findViewById(R.id.crm_calendar_toolbar);
+        toolbar = findViewById(R.id.calendar_toolbar);
 
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -353,27 +321,20 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
                     case MONTH_VIEW: {
                         // Mode 0: Month view
                         YearMonth positionDate = monthsInOrder.get(position);
-
-
-//                        updateActionBarTitle(CalendarUtils.monthYearFromDateViewPager(positionDate));
                         selectedDate = positionDate.atDay(1);
                         setToolbarTitle();
                         break;
                     }
                     case WEEK_VIEW: {
                         // Mode 1: Week view
-                        LocalDate positionDate = weeksStartingFromMonday.get(position);
-//                        updateActionBarTitle(CalendarUtils.localDateFromDateViewPager(positionDate));
-                        selectedDate = positionDate;
+                        selectedDate = weeksStartingFromMonday.get(position);
                         setToolbarTitle();
 
                         break;
                     }
                     case DAY_VIEW: {
                         // Mode 2: Day view
-                        LocalDate positionDate = daysStartingFromMonday.get(position);
-//                        updateActionBarTitle(CalendarUtils.localDateFromDateViewPager(positionDate));
-                        selectedDate = positionDate;
+                        selectedDate = daysStartingFromMonday.get(position);
                         setToolbarTitle();
                         break;
                     }
@@ -391,56 +352,12 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
             }
         });
 
-
-    }
-
-    private void setViewPagerTransformer() {
-        viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
-            @Override
-            public void transformPage(@NonNull View page, float position) {
-                final float normalizedPosition = Math.abs(Math.abs(position) - 1);
-                page.setScaleX(normalizedPosition / 2 + 0.5f);
-                page.setScaleY(normalizedPosition / 2 + 0.5f);
-                page.setAlpha(normalizedPosition);
-            }
-        });
-
-//-------------------Different--------------
-        //Effect page per page
-//        viewPager.setPageTransformer(new ViewPager2.PageTransformer() {
-//            private static final float MIN_SCALE = 0.85f;
-//            private static final float MIN_ALPHA = 0.5f;
-//            @Override
-//            public void transformPage(@NonNull View page, float position) {
-//                if (position < -1 || position > 1) {
-//                    page.setAlpha(0f); // Hide the page
-//                } else {
-//                    // Rotate the page
-//                    page.setRotationY(position * -30);
-//
-//                    // Scale the page
-//                    float scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(position / 2));
-//                    page.setScaleX(scaleFactor);
-//                    page.setScaleY(scaleFactor);
-//
-//                    // Adjust alpha for a fading effect
-//                    float alpha = Math.max(MIN_ALPHA, 1 - Math.abs(position / 2));
-//                    page.setAlpha(alpha);
-//                }
-//            }
-//        });
-    }
-
-    private void updateActionBarTitle(String actionTitle) {
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(actionTitle);
-        }
     }
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        menu.add(0, CRM_CALENDAR_ACTIVITY_MENU_REFRESH, Menu.NONE, "Today")
+        menu.add(0, CALENDAR_ACTIVITY_MENU_REFRESH, Menu.NONE, "Today")
                 .setIcon(R.drawable.calendar_today)
                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 
@@ -453,7 +370,7 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
             case android.R.id.home:
                 showExitConfirmationDialog();
                 return true;
-            case CRM_CALENDAR_ACTIVITY_MENU_REFRESH:
+            case CALENDAR_ACTIVITY_MENU_REFRESH:
                 returnToCurrectDateMenuButton();
                 break;
         }
@@ -471,6 +388,7 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
                     dialog.dismiss(); // Do nothing
                 })
                 .show();
+
     }
 
     //---For the Button in optionMenu that bring the calendar to current Today Date
@@ -514,7 +432,7 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
         startToolbarCalendarView();
         YearMonth nowYearMonth = YearMonth.from(selectedDate);
         initialPosition = CalendarUtils.monthsInOrder().indexOf(nowYearMonth);
-        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(crmJournalsData);
+        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
         setViewPager(adapter, initialPosition);
     }
 
@@ -545,7 +463,7 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
         }
 
 
-        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(crmJournalsData);
+        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
         setViewPager(adapter, initialPosition);
     }
 
@@ -568,7 +486,7 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
         initialPosition = daysStartingFromMonday.indexOf(selectedDate);
 
-        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(crmJournalsData);
+        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
         setViewPager(adapter, initialPosition);
 
 
@@ -610,7 +528,6 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
         if (monthViewCellClicked) {
 
             setMonth();
@@ -620,18 +537,12 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
             setWeek();
             weekViewCellClicked = false;
         } else {
-            navigateToMenuActivity();
+            showExitConfirmationDialog();
         }
-//        if (modeCalendar == WEEK_VIEW || modeCalendar == DAY_VIEW || modeCalendar == LISTVIEW_VIEW) {
-//            setMonth();
-//        } else {
-//            navigateToMenuActivity();
-//        }
+
     }
 
-    private void navigateToMenuActivity() {
-        startActivity(getIntent());
-    }
+
 
     //Setter of listview
     private void viewListViewItems() {
@@ -653,15 +564,15 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
         setToolbarTitle();
 
 
-        if (!crmJournalsData.isEmpty()) {
-            CrmJournalActionItemAdapterListView listView = new CrmJournalActionItemAdapterListView(getApplicationContext(), crmJournalsData, true);
+        if (!EventsData.isEmpty()) {
+            CalendarEventActionItemAdapterListView listView = new CalendarEventActionItemAdapterListView(getApplicationContext(), EventsData, true);
             showListViewRecyclerView.setAdapter(listView);
         }
 
-        //TempJournal is the journal that is selected from the listview, it is saved so when the user choose an event from dayview to stay on screen as selection
-        if (!(CalendarViews.tempJournal == null)) {
-            for (int i = 0; i < crmJournalsData.size(); i++) {
-                if (Objects.equals(crmJournalsData.get(i).getId(), CalendarViews.tempJournal.getId())) {
+        //TempEvent is the event that is selected from the listview, it is saved so when the user choose an event from dayview to stay on screen as selection
+        if (!(CalendarViews.tempCalendarEvent == null)) {
+            for (int i = 0; i < EventsData.size(); i++) {
+                if (Objects.equals(EventsData.get(i).getId(), CalendarViews.tempCalendarEvent.getId())) {
                     showListViewRecyclerView.setSelection(i);
                 }
             }
@@ -675,23 +586,22 @@ listViewBtn.setOnClickListener(new View.OnClickListener() {
 
 
         primaryFab.setEnabled(true);
-        primaryFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                CRM_NEW_MODE = true;
-                Intent intent = new Intent(MainActivity.this, EventActivity.class);
-                startActivity(intent);
-            }
+        primaryFab.setOnClickListener(v -> {
+            SHOW_MODE=false;
+            EDIT_MODE=false;
+            NEW_MODE = true;
+            Intent intent = new Intent(MainActivity.this, EventActivity.class);
+            startActivity(intent);
         });
     }
 
-    //Setter CRMJournal
-    public static void setCRMjournal() {
-        CalendarUtils.setIfAnEventHasTemps(crmJournalsData);
+    //Setter Calendar Event
+    public static void setCalendarEvent() {
+        CalendarUtils.setIfAnEventHasTemps(EventsData);
         TempEvents = checkForTemps();
     }
 
     public static ArrayList<CalendarEvent> checkForTemps() {
-        return CalendarUtils.tempEvents(crmJournalsData);
+        return CalendarUtils.tempEvents(EventsData);
     }
 }

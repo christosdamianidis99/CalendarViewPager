@@ -2,7 +2,7 @@ package com.example.calendarviewpager;
 
 
 public class CalendarEvent {
-    private Integer id; // i set type to Integer (and not int), because of upload CrmJournal where id can be returned from Capital as null, for some reason
+    private Integer id;
 
     private String descr;
 
@@ -131,7 +131,7 @@ public class CalendarEvent {
 
     @Override
     public String toString() {
-        return "CrmJournal{" +
+        return "Event{" +
                 "id=" + id +
                 ", descr='" + descr + '\'' +
                 ", startDate='" + startDate + '\'' +

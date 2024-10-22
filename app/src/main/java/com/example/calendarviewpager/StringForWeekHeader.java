@@ -2,11 +2,11 @@ package com.example.calendarviewpager;
 
 public class StringForWeekHeader {
     private String title;
-    private CalendarEvent colorJournal;
+    private CalendarEvent colorEvent;
 
-    public StringForWeekHeader(String title, CalendarEvent colorJournal) {
+    public StringForWeekHeader(String title, CalendarEvent colorEvent) {
         this.title = title;
-        this.colorJournal = colorJournal;
+        this.colorEvent = colorEvent;
     }
 
     public String getTitle() {
@@ -17,19 +17,19 @@ public class StringForWeekHeader {
         this.title = title;
     }
 
-    public CalendarEvent getColorJournal() {
-        return colorJournal;
+    public CalendarEvent getColorEvent() {
+        return colorEvent;
     }
 
-    public void setColorJournal(CalendarEvent colorJournal) {
-        this.colorJournal = colorJournal;
+    public void setColorEvent(CalendarEvent colorEvent) {
+        this.colorEvent = colorEvent;
     }
 
     @Override
     public String toString() {
         return "StringForWeekHeader{" +
                 "title='" + title + '\'' +
-                ", colorJournal=" + colorJournal +
+                ", colorEvent=" + colorEvent +
                 '}';
     }
 }

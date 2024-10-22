@@ -27,7 +27,7 @@ import java.util.ArrayList;
 
 public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewPagerAdapter.CalendarViewHolder> {
 
-    private ArrayList<CalendarEvent> events;
+    private final ArrayList<CalendarEvent> events;
 
     ArrayList<LocalDateTime> nowMonth = new ArrayList<>();
     ArrayList<LocalDateTime> nowWeek = new ArrayList<>();
@@ -119,29 +119,29 @@ public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewP
             stableHours.setVisibility(View.VISIBLE);
 
 
-            daysOfWeekViews.setWeekForViewPagerDaysOfWeek(week, setWeekCrmJournals(week, events));
-            calendarView.setWeekForViewPager(setWeekCrmJournals(week, events), week);
+            daysOfWeekViews.setWeekForViewPagerDaysOfWeek(week, setWeekEvents(week, events));
+            calendarView.setWeekForViewPager(setWeekEvents(week, events), week);
 
 
         }
 
-            public void bindDay(LocalDateTime day, ArrayList<CalendarEvent> crmJournalsData) {
+            public void bindDay(LocalDateTime day, ArrayList<CalendarEvent> calendarEvents) {
 
             stableHours.setVisibility(View.VISIBLE);
 
 
-            daysOfWeekViews.setDayForViewPagerDaysOfWeek(day, setDayCrmJournals(crmJournalsData, day));
-            calendarView.setDayFromViewPagerAdapter(day, setDayCrmJournals(crmJournalsData, day));
+            daysOfWeekViews.setDayForViewPagerDaysOfWeek(day, setDayCalendarEvents(calendarEvents, day));
+            calendarView.setDayFromViewPagerAdapter(day, setDayCalendarEvents(calendarEvents, day));
 
         }
 
-        private ArrayList<CalendarEvent> setWeekCrmJournals(ArrayList<LocalDateTime> week, ArrayList<CalendarEvent> crmJournalsData) {
-            ArrayList<CalendarEvent> weekJournals = new ArrayList<>();
+        private ArrayList<CalendarEvent> setWeekEvents(ArrayList<LocalDateTime> week, ArrayList<CalendarEvent> calendarEvents) {
+            ArrayList<CalendarEvent> weekEvents = new ArrayList<>();
 
-            for (int i = 0; i < crmJournalsData.size(); i++) {
+            for (int i = 0; i < calendarEvents.size(); i++) {
                 for (int j = 0; j < week.size(); j++) {
-                    if (CalendarUtils.convertStringToLocalDateTime(crmJournalsData.get(i).getStartDate()).toLocalDate().equals(week.get(j).toLocalDate())) {
-                        weekJournals.add(crmJournalsData.get(i));
+                    if (CalendarUtils.convertStringToLocalDateTime(calendarEvents.get(i).getStartDate()).toLocalDate().equals(week.get(j).toLocalDate())) {
+                        weekEvents.add(calendarEvents.get(i));
                     }
                 }
             }
@@ -149,23 +149,23 @@ public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewP
             for (int i = 0; i < MainActivity.TempEvents.size(); i++) {
                 for (int j = 0; j < week.size(); j++) {
                     if (CalendarUtils.convertStringToLocalDateTime(MainActivity.TempEvents.get(i).getStartDate()).toLocalDate().equals(week.get(j).toLocalDate())&& MainActivity.TempEvents.get(i).isTemp()) {
-                        weekJournals.add(MainActivity.TempEvents.get(i));
+                        weekEvents.add(MainActivity.TempEvents.get(i));
                     }
                 }
             }
 
-            return weekJournals;
+            return weekEvents;
 
         }
 
-        private ArrayList<CalendarEvent> setDayCrmJournals(ArrayList<CalendarEvent> crmJournalsData, LocalDateTime day) {
-            ArrayList<CalendarEvent> dayJournals = new ArrayList<>();
+        private ArrayList<CalendarEvent> setDayCalendarEvents(ArrayList<CalendarEvent> calendarEvents, LocalDateTime day) {
+            ArrayList<CalendarEvent> dayEvents = new ArrayList<>();
 
 
-            for (int i = 0; i < crmJournalsData.size(); i++) {
+            for (int i = 0; i < calendarEvents.size(); i++) {
 
-                if (CalendarUtils.convertStringToLocalDateTime(crmJournalsData.get(i).getStartDate()).toLocalDate().equals(day.toLocalDate())) {
-                    dayJournals.add(crmJournalsData.get(i));
+                if (CalendarUtils.convertStringToLocalDateTime(calendarEvents.get(i).getStartDate()).toLocalDate().equals(day.toLocalDate())) {
+                    dayEvents.add(calendarEvents.get(i));
                 }
 
             }
@@ -174,11 +174,11 @@ public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewP
             for (int i = 0; i < MainActivity.TempEvents.size(); i++) {
 
                 if (CalendarUtils.convertStringToLocalDateTime(MainActivity.TempEvents.get(i).getStartDate()).toLocalDate().equals(day.toLocalDate()) &&  MainActivity.TempEvents.get(i).isTemp()) {
-                    dayJournals.add(MainActivity.TempEvents.get(i));
+                    dayEvents.add(MainActivity.TempEvents.get(i));
                 }
 
             }
-            return dayJournals;
+            return dayEvents;
         }
     }
 }

@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     >
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -16,9 +21,11 @@
 
         <activity
             android:name="com.example.calendarviewpager.EventActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         android:exported="false" />
         <activity
             android:name="com.example.calendarviewpager.MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,6 +33,36 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-    </application>
 
+        <receiver
+            android:name="com.example.calendarviewpager.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.RECEIVE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.example.calendarviewpager.AlarmReceiver$SnoozeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.RECEIVE" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.example.calendarviewpager.AlarmReceiver$StopReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.RECEIVE" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+    <queries>
+        <package android:name="com.google.android.apps.maps" />
+    </queries>
 </manifest>

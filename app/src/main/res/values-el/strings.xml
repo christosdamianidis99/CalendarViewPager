@@ -16,4 +16,19 @@
     <string name="day_thursday">Πέμ</string>
     <string name="day_friday">Παρ</string>
     <string name="day_saturday">Σάβ</string>
+    <string name="channel_for_notifications">Channel for event notifications</string>
+    <string name="notifications">Notifications</string>
+    <string name="snooze">Αναβολή</string>
+    <string name="dismiss">Ακύρωση</string>
+    <string name="no_title">(Χωρίς τίτλο)</string>
+
+    <string-array name="reminder_options">
+        <item>Όχι</item>
+        <item>Εισόδου</item>
+        <item>5 λεπτά πριν</item>
+        <item>10 λεπτά πριν</item>
+        <item>30 λεπτά πριν</item>
+        <item>1 ώρα πριν</item>
+        <item>2 ώρα πριν</item>
+    </string-array>
 </resources>

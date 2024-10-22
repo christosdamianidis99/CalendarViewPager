@@ -58,7 +58,7 @@ public class CalendarViews extends View {
     private static final int HOURS_IN_DAY = 24;
 
     public LocalDateTime dayNow;
-    public static Date dayClickedFromMonthForNewCrmJournal; //This variable is to store the Date value of the user clicked day from month or from week.
+    public static Date dayClickedFromMonthForNewEvent; //This variable is to store the Date value of the user clicked day from month or from week.
 
     public static Date dateForViewPagerRegister;// This variable is to store the Date value of the pageSelected the user is based every view.
 
@@ -72,7 +72,7 @@ public class CalendarViews extends View {
     ArrayList<EventCoordinates> touchEventsForWeekView = new ArrayList<>();
     ArrayList<EventCoordinates> touchEventsDayView = new ArrayList<>();
 
-    public static CalendarEvent tempJournal;
+    public static CalendarEvent tempCalendarEvent;
     public static boolean weAreInTablet;
     public static boolean monthCounterOneInDayCell = false;
 
@@ -81,11 +81,7 @@ public class CalendarViews extends View {
         super(context, attrs);
 
         CalendarFormats.getScreenInches(MainActivity.myActivity);
-        if (CalendarFormats.screenYpotenuseInDp >= 1120) {
-            weAreInTablet = true;
-        } else {
-            weAreInTablet = false;
-        }
+        weAreInTablet = CalendarFormats.screenYpotenuseInDp >= 1120;
     }
 
 
@@ -164,7 +160,7 @@ public class CalendarViews extends View {
             currentDayOfMonthColor.setTypeface(appTypeface);
         }
 
-        setTextPaint(Color.BLUE, getResources().getDimension(R.dimen.text_size_title)  - dpToPx((int) 7f),appTypeface);
+        setTextPaint(getResources().getColor(R.color.pal_blue), getResources().getDimension(R.dimen.text_size_title)  - dpToPx((int) 7f),appTypeface);
 
 
         setweekAndDailyEventsPaint(getPrimaryColor(),appTypeface);
@@ -277,7 +273,7 @@ public class CalendarViews extends View {
     }
 
     private int getPrimaryColor() {
-        return Color.BLUE;
+        return getResources().getColor(R.color.pal_blue);
     }
 
 
@@ -369,7 +365,7 @@ public class CalendarViews extends View {
 
                 canvas.drawRect(startX, 0, endX, endY, hourBackgroundPaint);
                 if (i == 5 | i == 6) {
-                    hourBackgroundPaint.setColor(getResources().getColor(R.color.crm_color_LightGray));
+                    hourBackgroundPaint.setColor(getResources().getColor(R.color.color_LightGray));
                     canvas.drawRect(startX, 0, endX, endY, hourBackgroundPaint);
                 }
             }
@@ -494,18 +490,18 @@ public class CalendarViews extends View {
 
                 // Loop through tempEvents to find events on the current day
                 for (CalendarEvent calendarEvent : MainActivity.TempEvents) {
-                    LocalDateTime journalStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
+                    LocalDateTime calendarEventStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
                     String eventTitle = calendarEvent.getDescr();
                     if (eventTitle.length() > 9) {
                         eventTitle = eventTitle.substring(0, 9);
                     }
-                    if (dayTime.toLocalDate().equals(journalStartDate.toLocalDate())) {
+                    if (dayTime.toLocalDate().equals(calendarEventStartDate.toLocalDate())) {
 
                         if (eventsDrawn < maxEvents) {
                             // Draw a rectangle for the event
                             RectF rectF = new RectF(startX, eventStartY, endX, eventEndY);
                             float cornerRadius = dpToPx((int) 10f);
-                            eventPaint.setColor(Color.BLUE);
+                            eventPaint.setColor(getResources().getColor(R.color.pal_blue));
                             canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, eventPaint);
                             EventCoordinates eventCoordinates = new EventCoordinates(startX, endX, eventStartY, eventEndY, calendarEvent);
                             touchEventsForMonthView.add(eventCoordinates);
@@ -544,18 +540,18 @@ public class CalendarViews extends View {
 
             // Loop through events to find events on the current day
             for (CalendarEvent calendarEvent : calendarEvents) {
-                LocalDateTime journalStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
+                LocalDateTime calendarEventStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
                 String eventTitle = calendarEvent.getDescr();
                 if (eventTitle.length() > 9) {
                     eventTitle = eventTitle.substring(0, 9);
                 }
-                if (dayTime.toLocalDate().equals(journalStartDate.toLocalDate()) && !calendarEvent.isHasTemp()) {
+                if (dayTime.toLocalDate().equals(calendarEventStartDate.toLocalDate()) && !calendarEvent.isHasTemp()) {
 
                     if (eventsDrawn < maxEvents) {
                         // Draw a rectangle for the event
                         RectF rectF = new RectF(startX, eventStartY, endX, eventEndY);
                         float cornerRadius = dpToPx((int) 10f);
-                        eventPaint.setColor(Color.BLUE);
+                        eventPaint.setColor(getResources().getColor(R.color.pal_blue));
                         canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, eventPaint);
                         EventCoordinates eventCoordinates = new EventCoordinates(startX, endX, eventStartY, eventEndY, calendarEvent);
                         touchEventsForMonthView.add(eventCoordinates);
@@ -593,18 +589,18 @@ public class CalendarViews extends View {
 
             int eventsInDayCounter = 0;
             for (CalendarEvent calendarEvent : calendarEvents) {
-                LocalDateTime journalStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
+                LocalDateTime calendarEventStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
 
-                if (journalStartDate.toLocalDate().equals(dayTime.toLocalDate())) {
+                if (calendarEventStartDate.toLocalDate().equals(dayTime.toLocalDate())) {
                     eventsInDayCounter++;
                 }
 
             }
 
             for (CalendarEvent calendarEvent : MainActivity.TempEvents) {
-                LocalDateTime journalStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
+                LocalDateTime calendarEventStartDate = CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate());
 
-                if (journalStartDate.toLocalDate().equals(dayTime.toLocalDate())) {
+                if (calendarEventStartDate.toLocalDate().equals(dayTime.toLocalDate())) {
                     eventsInDayCounter++;
                 }
 
@@ -671,7 +667,7 @@ public class CalendarViews extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (Objects.equals(modeCalendar, MONTH_VIEW)) {
+        if (Objects.equals(MainActivity.modeCalendar, MONTH_VIEW)) {
             float x = event.getX();
             float y = event.getY();
 
@@ -683,17 +679,17 @@ public class CalendarViews extends View {
                         selectedDate = LocalDate.from(getSelectedDateMonth(x, y));
                         monthCounterOneInDayCell = false;
                         int eventCounter = 0;
-                        for (CalendarEvent journal : calendarEvents) {
-                            if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(selectedDate)) {
+                        for (CalendarEvent calendarEvent : MainActivity.EventsData) {
+                            if (CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate()).toLocalDate().equals(selectedDate)) {
                                 eventCounter++;
-                                tempJournal = journal;
+                                tempCalendarEvent = calendarEvent;
                             }
                         }
 
-                        for (CalendarEvent journal : MainActivity.TempEvents) {
-                            if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(selectedDate)) {
+                        for (CalendarEvent calendarEvent : MainActivity.TempEvents) {
+                            if (CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate()).toLocalDate().equals(selectedDate)) {
                                 eventCounter++;
-                                tempJournal = journal;
+                                tempCalendarEvent = calendarEvent;
                             }
                         }
 
@@ -707,10 +703,10 @@ public class CalendarViews extends View {
                             for (int i = 0; i < touchEventsForMonthView.size(); i++) {
                                 if ((x >= touchEventsForMonthView.get(i).getStartX() && x <= touchEventsForMonthView.get(i).getEndX()) &&
                                         (y >= touchEventsForMonthView.get(i).getStartY() && y <= touchEventsForMonthView.get(i).getEndY())) {
-                                    tempJournal = getSelectedCrmJournalMonthView(x, y);
+                                    tempCalendarEvent = getSelectedCalendarEventMonthView(x, y);
                                     break; // Exit the loop since the event is handled
                                 } else {
-                                    tempJournal = null;
+                                    tempCalendarEvent = null;
                                 }
                             }
 
@@ -735,7 +731,8 @@ public class CalendarViews extends View {
                     return super.onTouchEvent(event);
             }
             return true; // Consume the event
-        } else if (Objects.equals(modeCalendar, WEEK_VIEW)) {
+        }
+        else if (Objects.equals(modeCalendar, WEEK_VIEW)) {
             float x = event.getX();
             float y = event.getY();
             int action = event.getAction();
@@ -746,7 +743,7 @@ public class CalendarViews extends View {
                     for (int i = 0; i < touchEventsForWeekView.size(); i++) {
                         if ((x >= touchEventsForWeekView.get(i).getStartX() && x <= touchEventsForWeekView.get(i).getEndX()) &&
                                 (y >= touchEventsForWeekView.get(i).getStartY() && y <= touchEventsForWeekView.get(i).getEndY())) {
-                            tempJournal = getSelectedCrmJournalWeekView(x, y);
+                            tempCalendarEvent = getSelectedCalendarEventWeekView(x, y);
                             eventHandled = true; // Mark the event as handled
                             break; // Exit the loop since the event is handled
                         }
@@ -768,7 +765,8 @@ public class CalendarViews extends View {
             }
             return true; // Consume the event
 
-        } else if (Objects.equals(modeCalendar, DAY_VIEW)) {
+        }
+        else if (Objects.equals(modeCalendar, DAY_VIEW)) {
             float x = event.getX();
             float y = event.getY();
             int action = event.getAction();
@@ -780,7 +778,7 @@ public class CalendarViews extends View {
                     for (int i = 0; i < touchEventsDayView.size(); i++) {
                         if ((x >= touchEventsDayView.get(i).getStartX() && x <= touchEventsDayView.get(i).getEndX()) &&
                                 (y >= touchEventsDayView.get(i).getStartY() && y <= touchEventsDayView.get(i).getEndY())) {
-                            tempJournal = getSelectedCrmJournalDayView(x, y);
+                            tempCalendarEvent = getSelectedCalendarEventsDayView(x, y);
                             eventHandled = true; // Mark the event as handled
                             break; // Exit the loop since the event is handled
                         }
@@ -801,7 +799,8 @@ public class CalendarViews extends View {
                     return super.onTouchEvent(event);
             }
             return true; // Consume the event
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -814,16 +813,16 @@ public class CalendarViews extends View {
             if (weAreInTablet) {
                 if (monthCounterOneInDayCell) {
                     dayNow = selectedDate.atStartOfDay();
-                    dayClickedFromMonthForNewCrmJournal = CalendarUtils.convertLocalDateTimeToDate(dayNow);
+                    dayClickedFromMonthForNewEvent = CalendarUtils.convertLocalDateTimeToDate(dayNow);
                     CalendarViews.dateForViewPagerRegister=null;
                     MainActivity.monthViewCellClicked = false;
                     handleDaySelection();
                 } else {
-                    if (hasDayJournals(selectedDate)) {
-                        handleCrmJournalSelection();
+                    if (hasDayEvents(selectedDate)) {
+                        handleCalendarEventSelection();
                     } else {
                         dayNow = selectedDate.atStartOfDay();
-                        dayClickedFromMonthForNewCrmJournal = CalendarUtils.convertLocalDateTimeToDate(dayNow);
+                        dayClickedFromMonthForNewEvent = CalendarUtils.convertLocalDateTimeToDate(dayNow);
                         CalendarViews.dateForViewPagerRegister=null;
                         MainActivity.monthViewCellClicked = true;
                         handleDaySelection();
@@ -831,16 +830,16 @@ public class CalendarViews extends View {
                 }
             } else {
                 dayNow = selectedDate.atStartOfDay();
-                dayClickedFromMonthForNewCrmJournal = CalendarUtils.convertLocalDateTimeToDate(dayNow);
+                dayClickedFromMonthForNewEvent = CalendarUtils.convertLocalDateTimeToDate(dayNow);
                 CalendarViews.dateForViewPagerRegister=null;
                 MainActivity.monthViewCellClicked = true;
                 handleDaySelection();
             }
         } else if (modeCalendar == WEEK_VIEW) {
 
-            handleCrmJournalSelection();
+            handleCalendarEventSelection();
         } else if (modeCalendar == DAY_VIEW) {
-            handleCrmJournalSelection();
+            handleCalendarEventSelection();
         }
 
         return super.performClick();
@@ -870,31 +869,31 @@ public class CalendarViews extends View {
         return weekNow.get(dayOfWeek);
     }
 
-    private CalendarEvent getSelectedCrmJournalMonthView(float x, float y) {
+    private CalendarEvent getSelectedCalendarEventMonthView(float x, float y) {
         for (int i = 0; i < touchEventsForMonthView.size(); i++) {
             if ((x >= touchEventsForMonthView.get(i).getStartX() && x <= touchEventsForMonthView.get(i).getEndX()) &&
                     (y >= touchEventsForMonthView.get(i).getStartY() && y <= touchEventsForMonthView.get(i).getEndY())) {
-                return touchEventsForMonthView.get(i).getCrmJournal();
+                return touchEventsForMonthView.get(i).getCalendarEvent();
             }
         }
         return null;
     }
 
-    private CalendarEvent getSelectedCrmJournalWeekView(float x, float y) {
+    private CalendarEvent getSelectedCalendarEventWeekView(float x, float y) {
         for (int i = 0; i < touchEventsForWeekView.size(); i++) {
             if ((x >= touchEventsForWeekView.get(i).getStartX() && x <= touchEventsForWeekView.get(i).getEndX()) &&
                     (y >= touchEventsForWeekView.get(i).getStartY() && y <= touchEventsForWeekView.get(i).getEndY())) {
-                return touchEventsForWeekView.get(i).getCrmJournal();
+                return touchEventsForWeekView.get(i).getCalendarEvent();
             }
         }
         return null;
     }
 
-    private CalendarEvent getSelectedCrmJournalDayView(float x, float y) {
+    private CalendarEvent getSelectedCalendarEventsDayView(float x, float y) {
         for (int i = 0; i < touchEventsDayView.size(); i++) {
             if ((x >= touchEventsDayView.get(i).getStartX() && x <= touchEventsDayView.get(i).getEndX()) &&
                     (y >= touchEventsDayView.get(i).getStartY() && y <= touchEventsDayView.get(i).getEndY())) {
-                return touchEventsDayView.get(i).getCrmJournal();
+                return touchEventsDayView.get(i).getCalendarEvent();
             }
         }
         return null;
@@ -902,35 +901,39 @@ public class CalendarViews extends View {
 
     private void handleDaySelection() {
         int counter = 0;
-        CalendarEvent dayJournal = new CalendarEvent();
-        for (CalendarEvent journal : calendarEvents) {
-            if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(selectedDate)) {
-                dayJournal = journal;
+        CalendarEvent dayEvent = new CalendarEvent();
+        for (CalendarEvent event : calendarEvents) {
+            if (CalendarUtils.convertStringToLocalDateTime(event.getStartDate()).toLocalDate().equals(selectedDate)) {
+                dayEvent = event;
                 counter++;
             }
         }
 
-        for (CalendarEvent journal : MainActivity.TempEvents) {
-            if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(selectedDate)) {
-                dayJournal = journal;
+        for (CalendarEvent event : MainActivity.TempEvents) {
+            if (CalendarUtils.convertStringToLocalDateTime(event.getStartDate()).toLocalDate().equals(selectedDate)) {
+                dayEvent = event;
                 counter++;
             }
         }
         if (counter == 1) {
-            EventActivity.eventId = dayJournal.getId();
+            EventActivity.eventId = dayEvent.getId();
             MainActivity.monthViewCellClicked = false;
+
+            MainActivity.SHOW_MODE =true;
+            MainActivity.EDIT_MODE =false;
+            MainActivity.NEW_MODE =false;
+
             Intent i = new Intent(getContext(), EventActivity.class);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Add this line to set the FLAG_ACTIVITY_NEW_TASK flag
             getContext().startActivity(i);
         } else {
-            CalendarFormats.reloadActivity(MainActivity.MainActivity);
-
+            CalendarFormats.reloadActivity(MainActivity.myActivity);
         }
 
 
     }
 
-    private boolean hasDayJournals(LocalDate selected) {
+    private boolean hasDayEvents(LocalDate selected) {
         for (CalendarEvent calendarEvent : calendarEvents) {
             if (CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate()).toLocalDate().equals(selected)) {
                 return true;
@@ -945,23 +948,25 @@ public class CalendarViews extends View {
         return false;
     }
 
-    private void handleCrmJournalSelection() {
+    private void handleCalendarEventSelection() {
 
-        if (tempJournal != null) {
-            MainActivity.CRM_SHOW_MODE = true;
+        if (tempCalendarEvent != null) {
+            MainActivity.SHOW_MODE = true;
+            MainActivity.EDIT_MODE =false;
+            MainActivity.NEW_MODE = false;
             MainActivity.listViewShownFromMenu = false;
             for (int i = 0; i < calendarEvents.size(); i++) {
 
-                if (Objects.equals(calendarEvents.get(i).getId(), tempJournal.getId()) && !tempJournal.isTemp()) {
+                if (Objects.equals(calendarEvents.get(i).getId(), tempCalendarEvent.getId()) && !tempCalendarEvent.isTemp()) {
                     MainActivity.position = i;
                     EventActivity.eventId = calendarEvents.get(i).getId();
                     MainActivity.listViewShownFromDayView = true;
 
                 }
 
-                if (tempJournal.isTemp()) {
+                if (tempCalendarEvent.isTemp()) {
                     for (int j = 0; j < calendarEvents.size(); j++) {
-                        if (Objects.equals(calendarEvents.get(i).getId(), tempJournal.getId())) {
+                        if (Objects.equals(calendarEvents.get(i).getId(), tempCalendarEvent.getId())) {
                             MainActivity.position = i;
                             EventActivity.eventId = calendarEvents.get(i).getId();
                             MainActivity.listViewShownFromDayView = true;
@@ -990,7 +995,7 @@ public class CalendarViews extends View {
 
                 canvas.drawRect(startX, startY, endX, endY, hourBackgroundPaint);
                 if (i == 5 | i == 6) {
-                    hourBackgroundPaint.setColor(getResources().getColor(R.color.crm_color_LightGray));
+                    hourBackgroundPaint.setColor(getResources().getColor(R.color.color_LightGray));
                     canvas.drawRect(startX, 0, endX, endY, hourBackgroundPaint);
                 }
             }
@@ -1177,9 +1182,10 @@ public class CalendarViews extends View {
                         int endMin = CalendarUtils.convertStringToLocalDateTime(event.getEndTime()).getMinute();
                         if (startHour != endHour || startMin != endMin) {
                             float startX = (startDayOfWeek - 1) * blockWidth + 15 + offsetX;
-                            float startY = startHour * (float) (viewHeight / HOURS_IN_DAY) + startMin * 2;
+                            float startY = (float) ((endHour * 60 + endMin) * viewHeight / (HOURS_IN_DAY * 60));
+
+                            float endY = startHour * (float) (viewHeight / HOURS_IN_DAY) + startMin * 2;
                             float endX = startX + groupWidth;
-                            float endY = (float) ((endHour * 60 + endMin) * viewHeight / (HOURS_IN_DAY * 60));
 
                             drawEvent(canvas, startX, startY, endX, endY, event, false);
                             offsetX += groupWidth; // Increment offset by event width
@@ -1206,7 +1212,7 @@ public class CalendarViews extends View {
             rectF.set(startX, startY, endX, endY);
         }
 
-        weekAndDailyEvents.setColor(Color.BLUE);
+        weekAndDailyEvents.setColor(getResources().getColor(R.color.pal_blue));
 
         canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, weekAndDailyEvents);
 
@@ -1306,8 +1312,8 @@ public class CalendarViews extends View {
                     int endHour = CalendarUtils.convertStringToLocalDateTime(event.getEndTime()).getHour();
                     int endMin = CalendarUtils.convertStringToLocalDateTime(event.getEndTime()).getMinute();
                     if (startHour != endHour || startMin != endMin) {
-                        float startY = (startHour * viewHeight / HOURS_IN_DAY) + startMin * 2;
-                        float endY = ((endHour * 60 + endMin) * viewHeight) / (HOURS_IN_DAY * 60);
+                        float endY = (startHour * viewHeight / HOURS_IN_DAY) + startMin * 2;
+                        float startY = ((endHour * 60 + endMin) * viewHeight) / (HOURS_IN_DAY * 60);
 
                         float startX = offsetX + 25f;
                         float endX = startX + groupWidth;
@@ -1329,7 +1335,7 @@ public class CalendarViews extends View {
         RectF rectF = new RectF(eventLineX, eventStartY, endX, eventEndY);
         float cornerRadius = 5f; // Adjust the radius as needed
 
-        weekAndDailyEvents.setColor(Color.BLUE);
+        weekAndDailyEvents.setColor(getResources().getColor(R.color.pal_blue));
 
             textPaint.setColor(Color.WHITE);
 
@@ -1556,8 +1562,8 @@ public class CalendarViews extends View {
             int counter = 0;
 
 
-            for (CalendarEvent journal : calendarEvents) {
-                if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(day.toLocalDate()) && !journal.isHasTemp()) {
+            for (CalendarEvent calendarEvent : calendarEvents) {
+                if (CalendarUtils.convertStringToLocalDateTime(calendarEvent.getStartDate()).toLocalDate().equals(day.toLocalDate()) && !calendarEvent.isHasTemp()) {
                     counter++;
                 }
             }
@@ -1573,45 +1579,45 @@ public class CalendarViews extends View {
             if (weAreInTablet) {
                 if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O) {
                     // Here we are in Android version 8 or lower
-                    headerPaint = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
+                    headerPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
                     eventsOfWeekPaint = createTextPaint(Color.WHITE, textSizeTitle,appTypeface);
                     remainingEventsPaint = createTextPaint(Color.WHITE, textSizeTitle,appTypeface);
 
 
-                    daysOfWeekPaint = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
-                    daysOfWeekOfMonthPaint = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
+                    daysOfWeekPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
+                    daysOfWeekOfMonthPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
                     dayOfWeekOfMonthCurrentDatePaint = createTextPaint(Color.WHITE, textSizeTitle,appTypeface);
 
-                    dayOfWeekOfMonthOfDayView = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
-                    dayOfMonthDayCurrentDayViewPaint = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
+                    dayOfWeekOfMonthOfDayView = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
+                    dayOfMonthDayCurrentDayViewPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
                     dayOfMonthDayViewPaint = createTextPaint(Color.WHITE, textSizeTitle,appTypeface);
                 } else {
-                    headerPaint = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
+                    headerPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
                     eventsOfWeekPaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 15),appTypeface);
                     remainingEventsPaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 12),appTypeface);
 
 
-                    daysOfWeekPaint = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 15),appTypeface);
-                    daysOfWeekOfMonthPaint = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 10),appTypeface);
+                    daysOfWeekPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 15),appTypeface);
+                    daysOfWeekOfMonthPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 10),appTypeface);
                     dayOfWeekOfMonthCurrentDatePaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 10),appTypeface);
 
-                    dayOfWeekOfMonthOfDayView = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 10),appTypeface);
-                    dayOfMonthDayCurrentDayViewPaint = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 5),appTypeface);
+                    dayOfWeekOfMonthOfDayView = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 10),appTypeface);
+                    dayOfMonthDayCurrentDayViewPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 5),appTypeface);
                     dayOfMonthDayViewPaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 5),appTypeface);
                 }
 
             } else {
-                headerPaint = createTextPaint(Color.BLUE, textSizeTitle,appTypeface);
+                headerPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle,appTypeface);
                 eventsOfWeekPaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 35),appTypeface);
                 remainingEventsPaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 35),appTypeface);
 
 
-                daysOfWeekPaint = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 30),appTypeface);
-                daysOfWeekOfMonthPaint = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 30),appTypeface);
+                daysOfWeekPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 30),appTypeface);
+                daysOfWeekOfMonthPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 30),appTypeface);
                 dayOfWeekOfMonthCurrentDatePaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 30),appTypeface);
 
-                dayOfWeekOfMonthOfDayView = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 30),appTypeface);
-                dayOfMonthDayCurrentDayViewPaint = createTextPaint(Color.BLUE, textSizeTitle - spToPx((int) 30),appTypeface);
+                dayOfWeekOfMonthOfDayView = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 30),appTypeface);
+                dayOfMonthDayCurrentDayViewPaint = createTextPaint(getResources().getColor(R.color.pal_blue), textSizeTitle - spToPx((int) 30),appTypeface);
                 dayOfMonthDayViewPaint = createTextPaint(Color.WHITE, textSizeTitle - spToPx((int) 30),appTypeface);
             }
 
@@ -1619,7 +1625,7 @@ public class CalendarViews extends View {
 
 
             primaryOutlineColor = new Paint();
-            primaryOutlineColor.setColor(Color.BLUE);
+            primaryOutlineColor.setColor(getResources().getColor(R.color.pal_blue));
             primaryOutlineColor.setStyle(Paint.Style.STROKE); // Set the style to STROKE
             primaryOutlineColor.setDither(true);
             primaryOutlineColor.setAntiAlias(true);
@@ -1868,11 +1874,11 @@ public class CalendarViews extends View {
                     }
 
 
-                    headerPaint.setColor(Color.BLUE);
+                    headerPaint.setColor(getResources().getColor(R.color.pal_blue));
                     if (weAreInTablet) {
                         RectF rect = new RectF(x - dpToPx(15), y - dpToPx(10), x + dpToPx(60), y + dpToPx(10)); // Adjust rectangle size as needed
                         canvas.drawRoundRect(rect, dpToPx(8), dpToPx(8), headerPaint); // Draw rounded rectangle
-                        EventCoordinates eventCoordinates = new EventCoordinates(x - dpToPx(15), x + dpToPx(60), y - dpToPx(10), y + dpToPx(10), stringsAndColors.get(k).getColorJournal());
+                        EventCoordinates eventCoordinates = new EventCoordinates(x - dpToPx(15), x + dpToPx(60), y - dpToPx(10), y + dpToPx(10), stringsAndColors.get(k).getColorEvent());
 
                         touchEventsDaysOfWeeks.add(eventCoordinates);
 
@@ -1949,12 +1955,12 @@ public class CalendarViews extends View {
                         eventTitle = stringsAndColors.get(k).getTitle().substring(0, 5);
                     }
 
-                    headerPaint.setColor(Color.BLUE);
+                    headerPaint.setColor(getResources().getColor(R.color.pal_blue));
                     if (weAreInTablet) {
                         RectF rect = new RectF(x - dpToPx(15), y - dpToPx(10), x + dpToPx(60), y + dpToPx(10)); // Adjust rectangle size as needed
                         canvas.drawRoundRect(rect, dpToPx(8), dpToPx(8), headerPaint); // Draw rounded rectangle
 
-                        EventCoordinates eventCoordinates = new EventCoordinates(x - dpToPx(15), x + dpToPx(60), y - dpToPx(10), y + dpToPx(10), stringsAndColors.get(k).getColorJournal());
+                        EventCoordinates eventCoordinates = new EventCoordinates(x - dpToPx(15), x + dpToPx(60), y - dpToPx(10), y + dpToPx(10), stringsAndColors.get(k).getColorEvent());
                         touchEventsDaysOfWeeks.add(eventCoordinates);
 
 
@@ -2077,7 +2083,7 @@ public class CalendarViews extends View {
                     if (eventCount < MAX_EVENTS) {
                         float eventY = EVENT_START_Y + (eventCount * (EVENT_HEIGHT + EVENT_MARGIN));
                         RectF eventRect = new RectF(EVENT_START_X, eventY, getWidth(), eventY + EVENT_HEIGHT);
-                        headerPaint.setColor(Color.BLUE);
+                        headerPaint.setColor(getResources().getColor(R.color.pal_blue));
 
 
                             eventsOfWeekPaint.setColor(Color.WHITE);
@@ -2170,11 +2176,11 @@ public class CalendarViews extends View {
             }
         }
 
-        private CalendarEvent getSelectedCrmJournalDaysOfWeek(float x, float y) {
+        private CalendarEvent getSelectedCalendarEventDaysOfWeek(float x, float y) {
             for (int i = 0; i < touchEventsDaysOfWeeks.size(); i++) {
                 if ((x >= touchEventsDaysOfWeeks.get(i).getStartX() && x <= touchEventsDaysOfWeeks.get(i).getEndX()) &&
                         (y >= touchEventsDaysOfWeeks.get(i).getStartY() && y <= touchEventsDaysOfWeeks.get(i).getEndY())) {
-                    return touchEventsDaysOfWeeks.get(i).getCrmJournal();
+                    return touchEventsDaysOfWeeks.get(i).getCalendarEvent();
                 }
             }
             return null;
@@ -2199,11 +2205,11 @@ public class CalendarViews extends View {
                                         (y >= touchEventsDaysOfWeeks.get(i).getStartY() && y <= touchEventsDaysOfWeeks.get(i).getEndY())) {
 
 
-                                    tempJournal = getSelectedCrmJournalDaysOfWeek(x, y);
+                                    tempCalendarEvent = getSelectedCalendarEventDaysOfWeek(x, y);
                                     eventHandled = true; // Mark the event as handled
                                     break; // Exit the loop since the event is handled
                                 } else {
-                                    tempJournal = null;
+                                    tempCalendarEvent = null;
                                 }
                             }
                             // If no event is handled, return false
@@ -2225,16 +2231,17 @@ public class CalendarViews extends View {
 
 
                     case MotionEvent.ACTION_UP:
+                        modeCalendar = DAY_VIEW;
                         // Perform action for the selected date if a valid selection was made
                         if (weAreInTablet) {
-                            if (!(tempJournal == null)) {
+                            if (!(tempCalendarEvent == null)) {
                                 if (selectedDate != null) {
                                     performClick();
                                 }
                             } else {
                                 if (selectedDate != null) {
                                     day = selectedDate.atStartOfDay();
-                                    dayClickedFromMonthForNewCrmJournal = CalendarUtils.convertLocalDateTimeToDate(day);
+                                    dayClickedFromMonthForNewEvent = CalendarUtils.convertLocalDateTimeToDate(day);
                                     CalendarViews.dateForViewPagerRegister=null;
                                     handleDaySelection();
                                 }
@@ -2243,7 +2250,7 @@ public class CalendarViews extends View {
                         } else {
                             if (selectedDate != null) {
                                 day = selectedDate.atStartOfDay();
-                                dayClickedFromMonthForNewCrmJournal = CalendarUtils.convertLocalDateTimeToDate(day);
+                                dayClickedFromMonthForNewEvent = CalendarUtils.convertLocalDateTimeToDate(day);
                                 CalendarViews.dateForViewPagerRegister=null;
                                 handleDaySelection();
                             }
@@ -2272,7 +2279,7 @@ public class CalendarViews extends View {
                                     (y >= touchEventsDaysOfWeeks.get(i).getStartY() && y <= touchEventsDaysOfWeeks.get(i).getEndY())) {
 
 
-                                tempJournal = getSelectedCrmJournalDaysOfWeek(x, y);
+                                tempCalendarEvent = getSelectedCalendarEventDaysOfWeek(x, y);
                                 eventHandled = true; // Mark the event as handled
                                 break; // Exit the loop since the event is handled
                             }
@@ -2303,19 +2310,21 @@ public class CalendarViews extends View {
         @Override
         public boolean performClick() {
 
-            MainActivity.CRM_SHOW_MODE = true;
+            MainActivity.SHOW_MODE = true;
+            MainActivity.EDIT_MODE =false;
+            MainActivity.NEW_MODE = false;
             MainActivity.listViewShownFromMenu = false;
             for (int i = 0; i < calendarEvents.size(); i++) {
-                if (Objects.equals(calendarEvents.get(i).getId(), tempJournal.getId()) && !tempJournal.isTemp()) {
+                if (Objects.equals(calendarEvents.get(i).getId(), tempCalendarEvent.getId()) && !tempCalendarEvent.isTemp()) {
                     MainActivity.position = i;
                     EventActivity.eventId = calendarEvents.get(i).getId();
                     MainActivity.listViewShownFromDayView = true;
 
                 }
 
-                if (tempJournal.isTemp()) {
+                if (tempCalendarEvent.isTemp()) {
                     for (int j = 0; j < calendarEvents.size(); j++) {
-                        if (Objects.equals(calendarEvents.get(i).getId(), tempJournal.getId())) {
+                        if (Objects.equals(calendarEvents.get(i).getId(), tempCalendarEvent.getId())) {
                             MainActivity.position = i;
                             EventActivity.eventId = calendarEvents.get(i).getId();
                             MainActivity.listViewShownFromDayView = true;
@@ -2340,27 +2349,30 @@ public class CalendarViews extends View {
             // You can implement custom logic based on the selected date
 
             int counter = 0;
-            CalendarEvent dayJournal = new CalendarEvent();
-            for (CalendarEvent journal : calendarEvents) {
-                if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(selectedDate)) {
-                    dayJournal = journal;
+            CalendarEvent calendarEvent = new CalendarEvent();
+            for (CalendarEvent event : calendarEvents) {
+                if (CalendarUtils.convertStringToLocalDateTime(event.getStartDate()).toLocalDate().equals(selectedDate)) {
+                    calendarEvent = event;
                     counter++;
                 }
             }
-            for (CalendarEvent journal : MainActivity.TempEvents) {
-                if (CalendarUtils.convertStringToLocalDateTime(journal.getStartDate()).toLocalDate().equals(selectedDate)) {
-                    dayJournal = journal;
+            for (CalendarEvent event : MainActivity.TempEvents) {
+                if (CalendarUtils.convertStringToLocalDateTime(event.getStartDate()).toLocalDate().equals(selectedDate)) {
+                    calendarEvent = event;
                     counter++;
                 }
             }
             if (counter == 1) {
-                EventActivity.eventId = dayJournal.getId();
+                EventActivity.eventId = calendarEvent.getId();
                 MainActivity.weekViewCellClicked = false;
+                MainActivity.SHOW_MODE=true;
+                MainActivity.EDIT_MODE=false;
+                MainActivity.NEW_MODE=false;
                 Intent i = new Intent(getContext(), EventActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // Add this line to set the FLAG_ACTIVITY_NEW_TASK flag
                 getContext().startActivity(i);
             } else {
-                CalendarFormats.reloadActivity(MainActivity.MainActivity);
+                CalendarFormats.reloadActivity(MainActivity.myActivity);
             }
 
         }
@@ -2412,7 +2424,7 @@ public class CalendarViews extends View {
 
         private void initialize() {
             Typeface appTypeface = getTypeFaceFont(getContext());
-            stablePaint = createTextPaint(Color.BLUE);
+            stablePaint = createTextPaint(R.color.pal_blue);
             stablePaint.setAntiAlias(true);
             stablePaint.setDither(true);
             if (appTypeface != null) {
@@ -2429,7 +2441,7 @@ public class CalendarViews extends View {
 
         private Paint createTextPaint(int color) {
             Paint paint = new Paint();
-            paint.setColor(color);
+            paint.setColor(getResources().getColor(color));
             paint.setTextSize((float) TEXT_SIZE);
             paint.setAntiAlias(true);
             paint.setDither(true);

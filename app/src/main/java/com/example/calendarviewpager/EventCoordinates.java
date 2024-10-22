@@ -49,11 +49,11 @@ public class EventCoordinates {
         this.endY = endY;
     }
 
-    public CalendarEvent getCrmJournal() {
+    public CalendarEvent getCalendarEvent() {
         return calendarEvent;
     }
 
-    public void setCrmJournal(CalendarEvent calendarEvent) {
+    public void setCalendarEvent(CalendarEvent calendarEvent) {
         this.calendarEvent = calendarEvent;
     }
 }

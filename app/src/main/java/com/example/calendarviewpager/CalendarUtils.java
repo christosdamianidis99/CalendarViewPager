@@ -1,9 +1,6 @@
 package com.example.calendarviewpager;
 
-import android.annotation.SuppressLint;
-import android.widget.TextView;
 
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
@@ -25,46 +22,30 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CalendarUtils {
-    public static final int DECS_FOR_CRM_DURATIONS = 2;
     public static final String DECIMAL_FORMAT_FOR_ZERO_DECS = "###,###,###,###,##0";
 
     public static final String DECIMAL_FORMAT = "###,###,###,###,##0.";
-    public static final String SET_AN_INITIAL_DATE = "2000-01-01T00:00:00";
-    public static final String DAY_PATTERN = "dd";
-    public static final String MONTH_PATTERN = "MM";
-    public static final String YEAR_PATTERN = "yyyy";
-    public static final String EXTRA_FULL_DATE_PATTERN = "EEEE dd/MM/yyyy";
-    public static final String FULL_DATE_PATTERN = "EE dd/MM/yyyy";
-    public static final String FULL_DATE_PATTERN_2 = "EE dd-MM-yyyy";
-    public static final String SHORT_DATE_PATTERN = "dd/MM/yyyy";
-    public static final String VERY_SHORT_DATE_PATTERN = "dd/MM/yy";
-    public static final String SHORT_DATE_TIME_PATTERN_WITH_ENTER = "dd/MM/yyyy\nHH:mm:ss";
-    public static final String TIME_PATTERN = "HH:mm";
-    public static final String INPUT_PATTERN_SHORT_DATE = "yyyy-MM-dd";
-    public static final String INPUT_PATTERN_FULL_DATE = "yyyy-MM-dd HH:mm:ss";
-    public static final String INPUT_PATTERN_FULL_DATE_WITH_ENTER = "yyyy-MM-dd\nHH:mm:ss";
-    public static final String INPUT_PATTERN_FULL_DATE_FOR_COMPARISON = "yyyy-MM-dd'T'HH:mm:ss";
-    public static final String DATE_FOR_UPLOAD = "yyyy-MM-dd";
-    public static final String TIME_FOR_UPLOAD = "T00:00:00";
     public static LocalDate selectedDate = LocalDate.now();
-    public static void formatDecimalNumberInTextView(TextView textView, int decs, BigDecimal number){
-        textView.setText(decimals(decs).format(number));
+
+    public static Calendar getCalendarFromString(String dateString) {
+        // Define the date format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy'T'HH:mm");
+        Calendar calendar = Calendar.getInstance();
+
+        try {
+            // Parse the date String to a Date object
+            calendar.setTime(dateFormat.parse(dateString));
+            return calendar; // Return the populated Calendar object
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null; // Return null if parsing fails
+        }
     }
-    public static DecimalFormat decimals(int decs){
-        // Every time  a new DecimalFormatSymbols object is created and it is initializing with Locale.getDefault values
-        // If the choice is eg 2 = 123456789.00 , formatSymbols have some properties, for unisoft formatSymbols.setDecimalSeparator('.');
-        // But when user wants to change the choice, he goes out of the tabs, in slide menu. So the next time he comes to the tabs, the formatSymbols object
-        // is initializing because it is a new object. And it is initializing with the Locale.getDefault values
-        DecimalFormatSymbols formatSymbolsForAdapter = new DecimalFormatSymbols(Locale.getDefault());
-        DecimalFormat df = new DecimalFormat();
-        df = getDecimalFormat(decs, formatSymbolsForAdapter);
-        return df;
-    }
+
     public static String generateNumberOfDecimalPlaces(int decimalPlaces){
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < decimalPlaces; i++) {
-            s.append("0");  // in Decimal pattern '0' represents a digit even if it is not exist, and '#' represents a digit only if it is exists
-            // here i want standar number of decimals so i put '0' in pattern , so if the number is 5 it becomes  for unisoft 5.00 if we have to decimalPlaces
+            s.append("0");
         }
         return s.toString();
     }
@@ -129,54 +110,6 @@ public class CalendarUtils {
 
     }
 
-
-//    public static String monthYearFromDateViewPager(YearMonth yearMonth) {
-//        Locale greekLocale = new Locale("el", "GR");
-//
-//        // Convert LocalDate to Date
-//        Date utilDate = Date.from(yearMonth.atEndOfMonth().atStartOfDay().toInstant(ZoneOffset.UTC));
-//
-//        // Format the Date to a String
-//        SimpleDateFormat sdf = new SimpleDateFormat("LLLL yyyy", greekLocale);
-//        return sdf.format(utilDate);
-//    }
-
-    public static String localDateFromDateViewPager(LocalDate localDate) {
-        // Convert LocalDate to Date
-        Date date = Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-
-        // Get the default locale of the device
-        Locale deviceLocale = Locale.getDefault();
-        if (localDate.getYear()== LocalDate.now().getYear())
-        {
-            // Check if the device locale is set to Greek
-            if (deviceLocale.getLanguage().equals("el")) {
-                // If the device language is Greek, use Greek locale
-                Locale greekLocale = new Locale("el", "GR");
-                SimpleDateFormat formatter = new SimpleDateFormat("LLLL", greekLocale);
-                return formatter.format(date);
-            } else {
-                // If the device language is not Greek, use the default locale (which is typically English)
-                SimpleDateFormat formatter = new SimpleDateFormat("MMMM", deviceLocale);
-                return formatter.format(date);
-            }
-        }else
-        {
-            // Check if the device locale is set to Greek
-            if (deviceLocale.getLanguage().equals("el")) {
-                // If the device language is Greek, use Greek locale
-                Locale greekLocale = new Locale("el", "GR");
-                SimpleDateFormat formatter = new SimpleDateFormat("LLLL yyyy", greekLocale);
-                return formatter.format(date);
-            } else {
-                // If the device language is not Greek, use the default locale (which is typically English)
-                SimpleDateFormat formatter = new SimpleDateFormat("MMMM yyyy", deviceLocale);
-                return formatter.format(date);
-            }
-        }
-
-    }
-
     public static Date convertLocalDateTimeToDate(LocalDateTime localDateTime) {
         // Specify the zone
         ZoneId zoneId = ZoneId.systemDefault(); // You can specify your own zoneId
@@ -191,54 +124,10 @@ public class CalendarUtils {
         return Date.from(instant);
     }
 
-//    public static String localDateFromDateViewPager(LocalDate localDate) {
-//        Date date = Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
-//
-//        Locale greekLocale = new Locale("el", "GR");
-//        SimpleDateFormat formatter = new SimpleDateFormat("LLLL yyyy", greekLocale);
-//        return formatter.format(date);
-//    }
-
-    public static boolean datesAreEqual(String date1, String date2){
-        // convert the strings to Date format
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat(INPUT_PATTERN_FULL_DATE_FOR_COMPARISON);
-        Date firstDate = new Date();
-        Date secondDate = new Date();
-        try{
-            firstDate = format.parse(date1);
-            secondDate = format.parse(date2);
-        }catch(ParseException e){
-            e.printStackTrace();
-        }
-
-        assert secondDate != null;
-        return secondDate.equals(firstDate);
-    }
-    public static String parseDateToAnOutputPattern(String time, String outputPattern, String inputPattern) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
-
-        Date date = null;
-        String str = null;
-
-        try {
-            date = inputFormat.parse(time);
-            str = outputFormat.format(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return str;
-    }
-
-    public static String replaceTLetterInDatesWithSpaceOrEnter(String string, boolean replaceWithSpace){
-        // this because the date in Delphi has a format YYYY-MM-DDTHH:MM:SS
-        // here i replace the "T" with space " " or with a new line
-        return string.replace("T", replaceWithSpace ? " " : "\n");
-    }
 
     public static LocalDateTime convertStringToLocalDateTime(String dateString) {
         // Define the pattern of the input date string
-        String pattern = "yyyy-MM-dd'T'HH:mm:ss";
+        String pattern = "dd-MM-yyyy'T'HH:mm";
 
         // Create a DateTimeFormatter with the defined pattern
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
@@ -297,23 +186,6 @@ public class CalendarUtils {
 
         return daysInMonthArray;
     }
-    public static ArrayList<LocalDateTime> daysInMonthArrayInOrderSundayFirst(YearMonth yearMonth) {
-        ArrayList<LocalDateTime> daysInMonthArray = new ArrayList<>();
-        int dayOfWeek = yearMonth.atDay(1).getDayOfWeek().getValue();
-
-        // Adjusting the start day to Sunday (1)
-        int daysToSubtract = (dayOfWeek == DayOfWeek.SUNDAY.getValue()) ? 0 : (dayOfWeek - DayOfWeek.SUNDAY.getValue());
-
-        LocalDateTime currentDate = yearMonth.atDay(1).minusDays(daysToSubtract).atStartOfDay();
-
-        for (int i = 1; i <= 42; i++) {
-            daysInMonthArray.add(currentDate);
-            currentDate = currentDate.plusDays(1);
-        }
-
-        return daysInMonthArray;
-    }
-
 
 
 
@@ -497,21 +369,21 @@ public class CalendarUtils {
 
     public static ArrayList<CalendarEvent> tempEvents(ArrayList<CalendarEvent> calendarEvents) {
         ArrayList<CalendarEvent> tempEvents = new ArrayList<>();
-        for (CalendarEvent journal : calendarEvents) {
-            if (journal.isHasTemp()) {
-                LocalDateTime startDate = CalendarUtils.convertStringToLocalDateTime(journal.getStartDate());
-                LocalDateTime endDate = CalendarUtils.convertStringToLocalDateTime(journal.getEndDate());
+        for (CalendarEvent event : calendarEvents) {
+            if (event.isHasTemp()) {
+                LocalDateTime startDate = CalendarUtils.convertStringToLocalDateTime(event.getStartDate());
+                LocalDateTime endDate = CalendarUtils.convertStringToLocalDateTime(event.getEndDate());
 
-                LocalDateTime startTime = CalendarUtils.convertStringToLocalDateTime(journal.getStartTime());
-                LocalDateTime endTime = CalendarUtils.convertStringToLocalDateTime(journal.getEndTime());
+                LocalDateTime startTime = CalendarUtils.convertStringToLocalDateTime(event.getStartTime());
+                LocalDateTime endTime = CalendarUtils.convertStringToLocalDateTime(event.getEndTime());
 
                 long daysDifference = ChronoUnit.DAYS.between(startDate.toLocalDate(), endDate.toLocalDate());
 
                 if (daysDifference >= 1) {
                     // Create event for the first day
                     CalendarEvent tempEvent1 = new CalendarEvent();
-                    tempEvent1.setId(journal.getId());
-                    tempEvent1.setDescr(journal.getDescr());
+                    tempEvent1.setId(event.getId());
+                    tempEvent1.setDescr(event.getDescr());
                     tempEvent1.setTemp(true);
                     tempEvent1.setStartDate(convertLocalDateTimeToString(startDate));
                     tempEvent1.setStartTime(convertLocalDateTimeToString(startTime));
@@ -526,8 +398,8 @@ public class CalendarUtils {
                         allDayTemp.setTemp(true);
                         allDayTemp.setHasTemp(false);
 
-                        allDayTemp.setId(journal.getId());
-                        allDayTemp.setDescr(journal.getDescr());
+                        allDayTemp.setId(event.getId());
+                        allDayTemp.setDescr(event.getDescr());
                         allDayTemp.setStartDate(convertLocalDateTimeToString(middleDay));
                         allDayTemp.setStartTime(convertLocalDateTimeToString(middleDay));
                         allDayTemp.setEndDate(convertLocalDateTimeToString(middleDay));
@@ -537,8 +409,8 @@ public class CalendarUtils {
 
                     // Create event for the last day
                     CalendarEvent tempEvent2 = new CalendarEvent();
-                    tempEvent2.setId(journal.getId());
-                    tempEvent2.setDescr(journal.getDescr());
+                    tempEvent2.setId(event.getId());
+                    tempEvent2.setDescr(event.getDescr());
                     tempEvent2.setTemp(true);
                     tempEvent2.setStartDate(convertLocalDateTimeToString(endDate.toLocalDate().atStartOfDay()));
                     tempEvent2.setStartTime(convertLocalDateTimeToString(endDate.toLocalDate().atStartOfDay()));

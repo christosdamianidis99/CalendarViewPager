@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mainLayCRMRecView"
+    android:id="@+id/mainLayRecView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Theme.AppCompat.Light"
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:padding="8dp">
 
             <!-- Event ID (hidden, optional) -->
             <TextView
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
 
                     <TextView
@@ -108,17 +108,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
 
                     <TextView
                         android:id="@+id/tv_start_date"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_height="40dp"
+                        android:gravity="center|start"
                         android:clickable="true"
-                        android:drawableEnd="@drawable/ic_crm_calendar_icon"
-                        android:drawableRight="@drawable/ic_crm_calendar_icon"
+                        android:drawableEnd="@drawable/ic_calendar_icon"
+                        android:drawableRight="@drawable/ic_calendar_icon"
                         android:focusable="false"
                         android:hint="Start Date" />
 
@@ -147,13 +147,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <TextView
                         android:id="@+id/tv_start_time"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_height="40dp"
+                        android:gravity="center|start"
                         android:clickable="true"
                         android:drawableEnd="@drawable/ic_time"
                         android:drawableRight="@drawable/ic_time"
@@ -183,16 +183,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <TextView
                         android:id="@+id/tv_end_date"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
-                        android:layout_marginTop="8dp"
-                        android:clickable="true"
-                        android:drawableEnd="@drawable/ic_crm_calendar_icon"
-                        android:drawableRight="@drawable/ic_crm_calendar_icon"
+                        android:layout_height="40dp"
+                        android:gravity="center|start"                        android:clickable="true"
+                        android:drawableEnd="@drawable/ic_calendar_icon"
+                        android:drawableRight="@drawable/ic_calendar_icon"
                         android:focusable="false"
                         android:hint="End Date" />
 
@@ -221,14 +220,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <TextView
                         android:id="@+id/tv_end_time"
                         android:layout_width="match_parent"
-                        android:layout_height="45dp"
-                        android:layout_marginTop="8dp"
-                        android:clickable="true"
+                        android:layout_height="40dp"
+                        android:gravity="center|start"                        android:clickable="true"
                         android:drawableEnd="@drawable/ic_time"
                         android:drawableRight="@drawable/ic_time"
                         android:focusable="false"
@@ -258,7 +256,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <TextView
                         android:id="@+id/tv_duration"
@@ -269,6 +267,7 @@
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
             <TextView
                 android:id="@+id/tv_location_label"
                 android:layout_width="wrap_content"
@@ -290,15 +289,15 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
                     <TextView
                         android:id="@+id/tv_location"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:drawableEnd="@drawable/ic_location"
-                        android:drawableRight="@drawable/ic_location"
-                        android:layout_marginTop="8dp" />
+                        android:drawableRight="@drawable/ic_location" />
 
                     <EditText
                         android:id="@+id/et_location"
@@ -331,29 +330,22 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
-                    <TextView
-                        android:id="@+id/tv_reminder"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableEnd="@drawable/ic_reminder"
-                        android:drawableRight="@drawable/ic_reminder"
-                        android:layout_marginTop="8dp" />
-
-                    <EditText
-                        android:id="@+id/et_reminder"
+                    <Spinner
+                        android:id="@+id/reminder_spinner"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:inputType="number"
-                        android:drawableEnd="@drawable/ic_reminder"
-                        android:drawableRight="@drawable/ic_reminder"
-                        android:visibility="gone" />
+                        android:layout_height="match_parent"
+                        android:backgroundTint="@color/pal_blue"
+                        android:spinnerMode="dropdown"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/end_date_time_layout" />
 
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+
             <TextView
                 android:id="@+id/tv_comment_label"
                 android:layout_width="wrap_content"
@@ -361,6 +353,7 @@
                 android:layout_marginTop="16dp"
                 android:text="Comment"
                 android:textStyle="bold" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_comment"
                 android:layout_width="match_parent"
@@ -373,16 +366,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="8dp">
 
 
                     <TextView
                         android:id="@+id/tv_comment"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:drawableEnd="@drawable/ic_comment"
-                        android:drawableRight="@drawable/ic_comment"
-                        android:layout_marginTop="8dp" />
+                        android:drawableRight="@drawable/ic_comment" />
 
                     <EditText
                         android:id="@+id/et_comment"

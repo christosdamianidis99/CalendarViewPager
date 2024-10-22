@@ -15,4 +15,19 @@
     <string name="day_thursday">THU</string>
     <string name="day_friday">FRI</string>
     <string name="day_saturday">SAT</string>
+    <string name="channel_for_notifications">Channel for event notifications</string>
+    <string name="notifications">Notifications</string>
+    <string name="snooze">Snooze</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="no_title">(No title)</string>
+
+    <string-array name="reminder_options">
+        <item>No</item>
+        <item>Entry</item>
+        <item>5 minutes before</item>
+        <item>10 minutes before</item>
+        <item>30 minutes before</item>
+        <item>1 hour before</item>
+        <item>2 hours before</item>
+    </string-array>
 </resources>

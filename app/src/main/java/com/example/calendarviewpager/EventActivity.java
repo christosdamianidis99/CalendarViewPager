@@ -1,31 +1,43 @@
 package com.example.calendarviewpager;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mycalendar.R;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
 public class EventActivity extends AppCompatActivity {
-    private static final int EVENT_ACTIVITY_MENU_ADD_EVENT = Menu.FIRST + 1;
+   private static final int EVENT_ACTIVITY_MENU_ADD_EVENT = Menu.FIRST + 1;
+    private static final int EVENT_ACTIVITY_MENU_EDIT_EVENT = Menu.FIRST + 2;
+    private static final int EVENT_ACTIVITY_MENU_DELETE_EVENT = Menu.FIRST + 3;
+
     public static BigDecimal duration;
     DatabaseHelper db;
     public static int eventId;
@@ -36,18 +48,18 @@ public class EventActivity extends AppCompatActivity {
     private TextView tvEndTime;
     private static TextView tvDuration;
     private TextView tvLocation;
-    private TextView tvReminder;
     private TextView tvComment;
-    private EditText etDescr, etLocation, etReminder, etComment;
-    public static int crmJournalId;
+    private EditText etDescr, etLocation, etComment;
+    Spinner reminderSpinner;
     public static CalendarEvent positionEvent;
     public static boolean updateStartTimeHasBeenCalled;
     public static boolean updateDeliveryOrEndTimeHasBeenCalled;
-    private final Calendar startDateTime = Calendar.getInstance();
-    private final Calendar endDateTime = Calendar.getInstance();
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-    private final SimpleDateFormat timeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+    private Calendar startDateTime = Calendar.getInstance();
+    private Calendar endDateTime = Calendar.getInstance();
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd-MM-yyyy'T'HH:mm", Locale.getDefault());
+    private final SimpleDateFormat timeFormatter = new SimpleDateFormat("dd-MM-yyyy'T'HH:mm", Locale.getDefault());
     androidx.appcompat.widget.Toolbar toolbar;
+    private int reminderChoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +70,11 @@ public class EventActivity extends AppCompatActivity {
         setToolbar();
         setToolbarTitle();
 
+        // Create an ArrayAdapter using the string array and a default spinner layout
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.reminder_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        reminderSpinner.setAdapter(adapter);
 
         // Set listeners to open pickers
         tvStartDate.setOnClickListener(v -> openDatePicker(true));
@@ -65,41 +82,78 @@ public class EventActivity extends AppCompatActivity {
         tvStartTime.setOnClickListener(v -> openTimePicker(true));
         tvEndTime.setOnClickListener(v -> openTimePicker(false));
 
-        if (MainActivity.CRM_SHOW_MODE) {
+        if (MainActivity.SHOW_MODE) {
             showTextViews();
+            if (tvLocation.getText()!= null || tvLocation.getText()!="")
+            {
+                tvLocation.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openMaps(tvLocation.getText().toString().trim());
+                    }
+                });
+            }
+
             showEvent();
-        } else if (MainActivity.CRM_NEW_MODE) {
+        } else if (MainActivity.NEW_MODE) {
             // Set initial values
             setInitialDateTime();
             showEditTexts();
+            reminderChoice();
         } else {
             showEditTexts();
+            reminderChoice();
+            showEventForEdit();
+
         }
 
 
     }
 
     private void showEvent() {
-        for (int i=0; i<MainActivity.crmJournalsData.size(); i++)
-        {
-            if (MainActivity.crmJournalsData.get(i).getId()==crmJournalId)
-            {
-                positionEvent =  MainActivity.crmJournalsData.get(i);
+        for (int i = 0; i < MainActivity.EventsData.size(); i++) {
+            if (MainActivity.EventsData.get(i).getId() == eventId) {
+                positionEvent = MainActivity.EventsData.get(i);
                 break;
             }
         }
 
-        if (positionEvent!=null)
-        {
+        if (positionEvent != null) {
             tvDescr.setText(positionEvent.getDescr());
             tvStartDate.setText(CalendarUtils.extractDate(positionEvent.getStartDate()));
             tvStartTime.setText(CalendarUtils.extractTime(positionEvent.getStartTime()));
             tvEndDate.setText(CalendarUtils.extractDate(positionEvent.getEndDate()));
-            tvStartDate.setText(CalendarUtils.extractTime(positionEvent.getEndTime()));
-
+            tvEndTime.setText(CalendarUtils.extractTime(positionEvent.getEndTime()));
+            startDateTime = CalendarUtils.getCalendarFromString(positionEvent.getStartDate());
+            endDateTime = CalendarUtils.getCalendarFromString(positionEvent.getEndDate());
+            updateDuration();
             tvLocation.setText(positionEvent.getLocation());
-            tvReminder.setText(positionEvent.getReminder());
+            reminderSpinner.setSelection(positionEvent.getReminder());
             tvComment.setText(positionEvent.getComment());
+        }
+    }
+    private void showEventForEdit()
+    {
+        for (int i = 0; i < MainActivity.EventsData.size(); i++) {
+            if (MainActivity.EventsData.get(i).getId() == eventId) {
+                positionEvent = MainActivity.EventsData.get(i);
+                break;
+            }
+        }
+
+        if (positionEvent != null) {
+            etDescr.setText(positionEvent.getDescr());
+            tvStartDate.setText(CalendarUtils.extractDate(positionEvent.getStartDate()));
+            tvStartTime.setText(CalendarUtils.extractTime(positionEvent.getStartTime()));
+            tvEndDate.setText(CalendarUtils.extractDate(positionEvent.getEndDate()));
+            tvEndTime.setText(CalendarUtils.extractTime(positionEvent.getEndTime()));
+            startDateTime = CalendarUtils.getCalendarFromString(positionEvent.getStartDate());
+            endDateTime = CalendarUtils.getCalendarFromString(positionEvent.getEndDate());
+            updateDuration();
+            etLocation.setText(positionEvent.getLocation());
+            reminderSpinner.setSelection(positionEvent.getReminder());
+            reminderSpinner.setEnabled(true);
+            etComment.setText(positionEvent.getComment());
         }
     }
 
@@ -112,13 +166,12 @@ public class EventActivity extends AppCompatActivity {
         tvEndTime = findViewById(R.id.tv_end_time);
         tvDuration = findViewById(R.id.tv_duration);
         tvLocation = findViewById(R.id.tv_location);
-        tvReminder = findViewById(R.id.tv_reminder);
         tvComment = findViewById(R.id.tv_comment);
 
         //EditTexts
         etDescr = findViewById(R.id.et_descr);
         etLocation = findViewById(R.id.et_location);
-        etReminder = findViewById(R.id.et_reminder);
+        reminderSpinner = findViewById(R.id.reminder_spinner);
         etComment = findViewById(R.id.et_comment);
 
 
@@ -129,8 +182,13 @@ public class EventActivity extends AppCompatActivity {
         etDescr.setVisibility(View.GONE);
 
 
-        tvReminder.setVisibility(View.VISIBLE);
-        etReminder.setVisibility(View.GONE);
+        tvStartDate.setClickable(false);
+        tvStartTime.setClickable(false);
+
+        tvEndDate.setClickable(false);
+        tvEndTime.setClickable(false);
+
+        reminderSpinner.setEnabled(false);
 
         tvLocation.setVisibility(View.VISIBLE);
         etLocation.setVisibility(View.GONE);
@@ -144,9 +202,7 @@ public class EventActivity extends AppCompatActivity {
         tvDescr.setVisibility(View.GONE);
         etDescr.setVisibility(View.VISIBLE);
 
-
-        tvReminder.setVisibility(View.GONE);
-        etReminder.setVisibility(View.VISIBLE);
+        reminderSpinner.setVisibility(View.VISIBLE);
 
         tvLocation.setVisibility(View.GONE);
         etLocation.setVisibility(View.VISIBLE);
@@ -154,13 +210,28 @@ public class EventActivity extends AppCompatActivity {
         tvComment.setVisibility(View.GONE);
         etComment.setVisibility(View.VISIBLE);
     }
+    private void openMaps(String location) {
+        // Create a Uri from the location String
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(location));
+
+        // Create an Intent to launch Google Maps
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps"); // Specify the Google Maps package
+
+        // Check if there is an app that can handle the intent
+        if (mapIntent.resolveActivity(getPackageManager()) != null) {
+            startActivity(mapIntent); // Start the activity
+        } else {
+            Toast.makeText(this, "Google Maps app is not installed", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     // Step 1: Initialize the TextViews with current date and time
     private void setInitialDateTime() {
-        tvStartDate.setText(dateFormatter.format(startDateTime.getTime()));
-        tvStartTime.setText(timeFormatter.format(startDateTime.getTime()));
-        tvEndDate.setText(dateFormatter.format(endDateTime.getTime()));
-        tvEndTime.setText(timeFormatter.format(endDateTime.getTime()));
+        tvStartDate.setText(CalendarUtils.extractDate(dateFormatter.format(startDateTime.getTime())));
+        tvStartTime.setText(CalendarUtils.extractTime(timeFormatter.format(startDateTime.getTime())));
+        tvEndDate.setText(CalendarUtils.extractDate(dateFormatter.format(endDateTime.getTime())));
+        tvEndTime.setText(CalendarUtils.extractTime(timeFormatter.format(endDateTime.getTime())));
         updateDuration();
     }
 
@@ -172,9 +243,9 @@ public class EventActivity extends AppCompatActivity {
             calendar.set(Calendar.MONTH, month);
             calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
             if (isStartDate) {
-                tvStartDate.setText(dateFormatter.format(calendar.getTime()));
+                tvStartDate.setText(CalendarUtils.extractDate(dateFormatter.format(calendar.getTime())));
             } else {
-                tvEndDate.setText(dateFormatter.format(calendar.getTime()));
+                tvEndDate.setText(CalendarUtils.extractDate(dateFormatter.format(calendar.getTime())));
             }
             validateDatesAndTimes();
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
@@ -187,9 +258,9 @@ public class EventActivity extends AppCompatActivity {
             calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
             calendar.set(Calendar.MINUTE, minute);
             if (isStartTime) {
-                tvStartTime.setText(timeFormatter.format(calendar.getTime()));
+                tvStartTime.setText(CalendarUtils.extractTime(timeFormatter.format(calendar.getTime())));
             } else {
-                tvEndTime.setText(timeFormatter.format(calendar.getTime()));
+                tvEndTime.setText(CalendarUtils.extractTime(timeFormatter.format(calendar.getTime())));
             }
             validateDatesAndTimes();
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show();
@@ -200,14 +271,14 @@ public class EventActivity extends AppCompatActivity {
         if (endDateTime.before(startDateTime)) {
             // End date is before start date, reset the end date
             endDateTime.setTime(startDateTime.getTime());
-            tvEndDate.setText(dateFormatter.format(endDateTime.getTime()));
-            tvEndTime.setText(timeFormatter.format(endDateTime.getTime()));
+            tvEndDate.setText(CalendarUtils.extractDate(dateFormatter.format(endDateTime.getTime())));
+            tvEndTime.setText(CalendarUtils.extractTime(timeFormatter.format(endDateTime.getTime())));
         } else if (startDateTime.get(Calendar.YEAR) == endDateTime.get(Calendar.YEAR) &&
                 startDateTime.get(Calendar.DAY_OF_YEAR) == endDateTime.get(Calendar.DAY_OF_YEAR) &&
                 endDateTime.before(startDateTime)) {
             // Same day, but end time is before start time
             endDateTime.setTime(startDateTime.getTime());
-            tvEndTime.setText(timeFormatter.format(endDateTime.getTime()));
+            tvEndTime.setText(CalendarUtils.extractTime(timeFormatter.format(endDateTime.getTime())));
         }
 
         // Step 4: Update the duration
@@ -225,19 +296,21 @@ public class EventActivity extends AppCompatActivity {
         tvDuration.setText(String.format(Locale.getDefault(), "%.2f hours", durationInHours));
     }
 
+    private void reminderChoice() {
+        reminderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                // Handle the selected item, e.g., get reminder time
+                reminderChoice = position;
+                // Do something with the selected reminder (e.g., save it or display it)
+            }
 
-    private void populateEventDetails(CalendarEvent event) {
-        if (event != null) {
-            tvDescr.setText(event.getDescr());
-            tvStartDate.setText(event.getStartDate());
-            tvStartTime.setText(event.getStartTime());
-            tvEndDate.setText(event.getEndDate());
-            tvEndTime.setText(event.getEndTime());
-            tvDuration.setText(String.valueOf(event.getDuration()));
-            tvLocation.setText(event.getLocation());
-            tvReminder.setText(String.valueOf(event.getReminder()));
-            tvComment.setText(event.getComment());
-        }
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+                // Do something when no item is selected
+            }
+        });
+
     }
 
     public void setToolbar() {
@@ -255,7 +328,7 @@ public class EventActivity extends AppCompatActivity {
     }
 
     private void setToolbarTitle() {
-        if (MainActivity.CRM_NEW_MODE) {
+        if (MainActivity.NEW_MODE) {
             String actionTitle = "New event";
             Objects.requireNonNull(getSupportActionBar()).setTitle(actionTitle);
         }
@@ -263,12 +336,56 @@ public class EventActivity extends AppCompatActivity {
 
     }
 
+    public static long getReminderOffset(Integer idx) {
+        // Define time offsets in milliseconds
+        final long FIVE_MINUTES = 5 * 60 * 1000;    // 5 minutes in milliseconds
+        final long TEN_MINUTES = 10 * 60 * 1000;    // 10 minutes in milliseconds
+        final long THIRTY_MINUTES = 30 * 60 * 1000; // 30 minutes in milliseconds
+        final long ONE_HOUR = 60 * 60 * 1000;       // 1 hour in milliseconds
+        final long TWO_HOURS = 2 * 60 * 60 * 1000;  // 2 hours in milliseconds
+
+        // Switch based on reminder index
+        switch (idx) {
+            case 0:
+                return 0L;  // "Nothing" -> no reminder
+            case 1:
+                return 0L;  // "Entry" -> trigger at event start time (no offset)
+            case 2:
+                return FIVE_MINUTES;  // 5 minutes before
+            case 3:
+                return TEN_MINUTES;   // 10 minutes before
+            case 4:
+                return THIRTY_MINUTES; // 30 minutes before
+            case 5:
+                return ONE_HOUR;      // 1 hour before
+            case 6:
+                return TWO_HOURS;     // 2 hours before
+            default:
+                return 0L;            // Default: no offset (just in case)
+        }
+    }
+
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.clear();
-        menu.add(0, EVENT_ACTIVITY_MENU_ADD_EVENT, Menu.NONE, "Add event")
-                .setIcon(R.drawable.ic_add_event)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        if (MainActivity.NEW_MODE || MainActivity.EDIT_MODE)
+        {
+            menu.add(0, EVENT_ACTIVITY_MENU_ADD_EVENT, Menu.NONE, "Add event")
+                    .setIcon(R.drawable.ic_add_event)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+        }else
+        {
+            menu.add(0, EVENT_ACTIVITY_MENU_EDIT_EVENT, Menu.NONE, "Edit event")
+                    .setIcon(R.drawable.ic_edit_event)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+
+            menu.add(0, EVENT_ACTIVITY_MENU_DELETE_EVENT, Menu.NONE, "Edit event")
+                    .setIcon(R.drawable.ic_delete)
+                    .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+
 
 
         return super.onPrepareOptionsMenu(menu);
@@ -280,47 +397,180 @@ public class EventActivity extends AppCompatActivity {
             case android.R.id.home:
                 //startActivity(new Intent(EventActivity.this,MainActivity.class));
                 onBackPressed();
-
                 break;
-
             case EVENT_ACTIVITY_MENU_ADD_EVENT:
                 addOrEditEvent();
+                break;
+            case EVENT_ACTIVITY_MENU_EDIT_EVENT:
+                MainActivity.EDIT_MODE =true;
+                MainActivity.NEW_MODE = false;
+                MainActivity.SHOW_MODE = false;
+                CalendarFormats.reloadActivity(this);
+                break;
+            case EVENT_ACTIVITY_MENU_DELETE_EVENT:
+                deleteEvent();
                 break;
 
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void deleteEvent() {
+
+        new AlertDialog.Builder(EventActivity.this)
+                .setTitle("Delete Event")
+                .setMessage("Are you sure you want to delete " + positionEvent.getDescr()+".")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    db.deleteEvent(eventId);
+                    startActivity(new Intent(EventActivity.this, MainActivity.class));
+                })
+                .setNegativeButton("No", null)
+                .show();
+
+    }
+
+
+    public static Calendar parseDateString(String dateString) {
+        // Split the dateString by the "T" character
+        String[] parts = dateString.split("T");
+
+        // Take only the part before "T"
+        String datePart = parts[0];
+
+        // Create a SimpleDateFormat object to parse the string
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+        Calendar calendar = Calendar.getInstance();
+        try {
+            // Parse the string into a Date object
+            Date date = sdf.parse(datePart);
+
+            // Set the Calendar instance's time to the parsed date
+            calendar.setTime(date);
+        } catch (ParseException | ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace(); // Handle parsing errors here
+        }
+        return calendar;
+    }
+
+    public static Calendar parseTimeString(String dateString) {
+        // Split the dateString by the "T" character
+        String[] parts = dateString.split("T");
+
+        // Take only the part before "T"
+        String datePart = parts[1];
+
+        // Create a SimpleDateFormat object to parse the string
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        Calendar calendar = Calendar.getInstance();
+        try {
+            // Parse the string into a Date object
+            Date date = sdf.parse(datePart);
+
+            // Set the Calendar instance's time to the parsed date
+            calendar.setTime(date);
+        } catch (ParseException | ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace(); // Handle parsing errors here
+        }
+        return calendar;
+    }
+
+
     private void addOrEditEvent() {
-        String startDateStr = dateFormatter.format(startDateTime.getTime()); // Calendar to string (yyyy-MM-dd)
-        String startTimeStr = timeFormatter.format(startDateTime.getTime()); // Calendar to string (HH:mm)
+        if ((etDescr.getText() == null || etDescr.getText().toString().equals(""))) {
+            etDescr.setText(R.string.no_title);
+        }
+        if (MainActivity.NEW_MODE) {
+            String startDateStr = dateFormatter.format(startDateTime.getTime()); // Calendar to string (yyyy-MM-dd)
+            String startTimeStr = timeFormatter.format(startDateTime.getTime()); // Calendar to string (HH:mm)
 
-        String endDateStr = dateFormatter.format(endDateTime.getTime());
-        String endTimeStr = timeFormatter.format(endDateTime.getTime());
+            String endDateStr = dateFormatter.format(endDateTime.getTime());
+            String endTimeStr = timeFormatter.format(endDateTime.getTime());
 
-        // Get the duration text and clean it
-        String durationText = tvDuration.getText().toString().trim();
+            // Get the duration text and clean it
+            String durationText = tvDuration.getText().toString().trim();
 
 // Remove the " hours" suffix and replace any commas with dots (if needed)
-        String cleanedDurationText = durationText.replace(" hours", "").replace(",", ".");
+            String cleanedDurationText = durationText.replace(" hours", "").replace(",", ".");
 
-        CalendarEvent event = new CalendarEvent();
-        event.setDescr(etDescr.getText().toString().trim());
-        event.setStartDate(startDateStr);
-        event.setStartTime(startTimeStr);
-        event.setEndDate(endDateStr);
-        event.setEndTime(endTimeStr);
-        try {
-            double duration = Double.valueOf(cleanedDurationText);
-            event.setDuration(duration);
-        } catch (NumberFormatException e) {
-            // Handle the exception (e.g., show an error message)
-            Log.e("EventActivity", "Invalid duration format: " + cleanedDurationText);
+            CalendarEvent event = new CalendarEvent();
+            event.setDescr(etDescr.getText().toString().trim());
+            event.setStartDate(startDateStr);
+            event.setStartTime(startTimeStr);
+            event.setEndDate(endDateStr);
+            event.setEndTime(endTimeStr);
+            try {
+                double duration = Double.valueOf(cleanedDurationText);
+                event.setDuration(duration);
+            } catch (NumberFormatException e) {
+                // Handle the exception (e.g., show an error message)
+                Log.e("EventActivity", "Invalid duration format: " + cleanedDurationText);
+            }
+            event.setLocation(etLocation.getText().toString().trim());
+            event.setReminder(reminderChoice);
+            event.setComment(etComment.getText().toString().trim());
+            int newEventId = (int) db.insertEvent(event);
+
+            AlarmManager.setAlarm(this, newEventId, event.getDescr(), event.getStartDate(), event.getStartTime(), String.valueOf(event.getReminder()));
+            startActivity(new Intent(EventActivity.this, MainActivity.class));
+        } else {
+
+            CalendarEvent updateEvent = db.getEventById(eventId);
+            String startDateStr = dateFormatter.format(startDateTime.getTime()); // Calendar to string (yyyy-MM-dd)
+            String startTimeStr = timeFormatter.format(startDateTime.getTime()); // Calendar to string (HH:mm)
+
+            String endDateStr = dateFormatter.format(endDateTime.getTime());
+            String endTimeStr = timeFormatter.format(endDateTime.getTime());
+
+            // Get the duration text and clean it
+            String durationText = tvDuration.getText().toString().trim();
+
+// Remove the " hours" suffix and replace any commas with dots (if needed)
+            String cleanedDurationText = durationText.replace(" hours", "").replace(",", ".");
+
+            updateEvent.setDescr(etDescr.getText().toString().trim());
+            updateEvent.setStartDate(startDateStr);
+            updateEvent.setStartTime(startTimeStr);
+            updateEvent.setEndDate(endDateStr);
+            updateEvent.setEndTime(endTimeStr);
+            try {
+                double duration = Double.valueOf(cleanedDurationText);
+                updateEvent.setDuration(duration);
+            } catch (NumberFormatException e) {
+                // Handle the exception (e.g., show an error message)
+                Log.e("EventActivity", "Invalid duration format: " + cleanedDurationText);
+            }
+            updateEvent.setLocation(etLocation.getText().toString().trim());
+            updateEvent.setReminder(reminderChoice);
+            updateEvent.setComment(etComment.getText().toString().trim());
+
+            int updateId = db.updateEvent(updateEvent);
+            AlarmManager.cancelAlarm(this, updateId);
+            AlarmManager.setAlarm(this, updateId, updateEvent.getDescr(), updateEvent.getStartDate(), updateEvent.getStartTime(), String.valueOf(updateEvent.getReminder()));
+
+            MainActivity.SHOW_MODE=true;
+            MainActivity.EDIT_MODE=false;
+            MainActivity.NEW_MODE=false;
+            positionEvent = db.getEventById(updateId);
+            MainActivity.EventsData = db.getAllCalendarEvents();
+            CalendarFormats.reloadActivity(this);
         }
-        event.setLocation(etLocation.getText().toString().trim());
-        event.setReminder(Integer.valueOf(etReminder.getText().toString()));
-        event.setComment(etComment.getText().toString().trim());
-        db.insertEvent(event);
-        startActivity(new Intent(EventActivity.this, MainActivity.class));
+
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (MainActivity.SHOW_MODE||MainActivity.NEW_MODE)
+        {
+            startActivity(new Intent(EventActivity.this,MainActivity.class));
+        }else
+        {
+            MainActivity.SHOW_MODE=true;
+            MainActivity.EDIT_MODE=false;
+            MainActivity.NEW_MODE=false;
+            CalendarFormats.reloadActivity(this);
+            //super.onBackPressed();
+        }
+
     }
 }

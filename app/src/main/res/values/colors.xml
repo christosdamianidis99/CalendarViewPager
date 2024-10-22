@@ -6,7 +6,7 @@
     <color name="gray_light">#e7e7e7</color>
     <color name="line_odd">#ffffff</color>
     <color name="transparent">#00000000</color>
-    <color name="crm_color_LightGray">#F5F5F5</color>
+    <color name="color_LightGray">#F5F5F5</color>
     <color name="light_background">#F9F9F9</color>
     <color name="shadow_color">#B0BEC5</color>
     <color name="border_gray">#DADADA</color>

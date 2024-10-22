@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "com.example.mycalendar"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.mycalendar"
         minSdk = 16
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
@@ -22,9 +22,10 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+
     }
 
     compileOptions {
@@ -48,12 +49,13 @@ dependencies {
 
     // Rounded Image View
     implementation("com.makeramen:roundedimageview:2.3.0")
+    implementation("androidx.core:core-ktx:1.10.1")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 
     // Navigation Component
-    implementation("androidx.navigation:navigation-fragment-ktx:2.6.0-beta01")
-    implementation("androidx.navigation:navigation-ui-ktx:2.6.0-beta01")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.2")
     implementation("androidx.work:work-runtime:2.8.1")
 
     implementation("androidx.viewpager2:viewpager2:1.0.0")
