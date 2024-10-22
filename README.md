@@ -50,3 +50,21 @@ You can clone this repository from GitHub to run the app locally. Use the follow
 
 ```bash
 git clone https://github.com/christosdamianidis99/CalendarViewPager.git
+```
+## Screenshots
+
+| New Event | Edit Event | Show Event |
+|-----------|------------|------------|
+| <img src="assets/NEW_EVENT.jpg" alt="New Event" width="300"/> | <img src="assets/EDIT_EVENT.jpg" alt="Edit Event" width="300"/> | <img src="assets/SHOW_EVENT.jpg" alt="Show Event" width="300"/> |
+
+| Month View | Month View 2 | Week View |
+|------------|---------------|-----------|
+| <img src="assets/MONTH_VIEW_TWO_EVENTS_SAME_DAY.jpg" alt="Month View" width="300"/> | <img src="assets/MONTH_VIEW_TWO_EVENTS.jpg" alt="Month View 2" width="300"/> | <img src="assets/WEEK_VIEW_TWO_EVENTS.jpg" alt="Week View" width="300"/> |
+
+| Week View 2 | Day View | Popup Window |
+|--------------|----------|--------------|
+| <img src="assets/WEEK_VIEW_EVENT_CALENDAR.jpg" alt="Week View 2" width="300"/> | <img src="assets/DAY_VIEW_EVENT_CALENDAR.jpg" alt="Day View" width="300"/> | <img src="assets/POPUP_WINDOW.jpg" alt="Popup Window" width="300"/> |
+
+| List View |
+|-----------|
+| <img src="assets/LIST_VIEW.jpg" alt="List View" width="300"/> |
