@@ -7,6 +7,13 @@
     android:fitsSystemWindows="true"
     tools:context="com.example.calendarviewpager.MainActivity">
 
+
+    <ProgressBar
+        android:id="@+id/progressBarMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="invisible"/>
     <RelativeLayout
         android:id="@+id/parentRel"
         android:layout_width="match_parent"
@@ -81,6 +88,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/day_button" />
         </LinearLayout>
+
+
         <ListView
             android:id="@+id/showListViewRecyclerView"
             android:layout_width="match_parent"

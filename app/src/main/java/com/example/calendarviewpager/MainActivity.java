@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.CalendarView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
@@ -35,6 +37,8 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -64,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
     androidx.appcompat.widget.Toolbar toolbar;
     ListView showListViewRecyclerView;
     FrameLayout frameLayout;
+    ProgressBar progressBar;
 
     private ViewPager2 viewPager;
 
@@ -100,16 +105,52 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initWidgets();
-        PermissionManager.requestAllPermissionsIfNeeded(this);
-        db = new DatabaseHelper(this);
-        EventsData = db.getAllCalendarEvents();
-        setCalendarEvent();
-        setToolbar();
-        setToolbarTitle();
-        setFloatingActionButtons();
-        myActivity = this;
+        myActivity=MainActivity.this;
 
+
+
+
+        // Initialize database in a background thread
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+
+
+
+            // Update UI on main thread after loading events
+            runOnUiThread(() -> {
+                // Initialize UI elements
+                initWidgets();
+                setFloatingActionButtons();
+
+                // Load toolbar and buttons first (this is fast)
+                setToolbar();
+                setToolbarTitle();
+                // Request permissions if needed (this is non-blocking)
+                PermissionManager.requestAllPermissionsIfNeeded(this);
+
+
+                db = new DatabaseHelper(MainActivity.this);
+                EventsData = db.getAllCalendarEvents();
+
+
+                setCalendarEvent(); // Bind events to the calendar
+                setInitialViewMode(); // Select the initial calendar view
+
+
+                // Set up view pager and register listeners after the initial UI is displayed
+                viewPagerRegister();
+                // Set onClick listeners (no database or long operation involved here)
+                setupViewModeButtons();
+            });
+        });
+
+
+
+
+    }
+
+    // Moved logic into a separate method to handle the calendar view mode setup
+    private void setInitialViewMode() {
         if (Objects.equals(modeCalendar, MONTH_VIEW) && !monthViewCellClicked) {
             setMonth();
         } else if (Objects.equals(modeCalendar, WEEK_VIEW) && !weekViewCellClicked) {
@@ -122,33 +163,38 @@ public class MainActivity extends AppCompatActivity {
             setDaily();
         } else if (Objects.equals(modeCalendar, WEEK_VIEW) && weekViewCellClicked) {
             setDaily();
-
         }
+    }
 
+    // Set up the view mode buttons
+    private void setupViewModeButtons() {
         monthViewBtn.setOnClickListener(v -> {
             monthViewCellClicked = false;
             weekViewCellClicked = false;
             setMonth();
         });
+
         weekViewBtn.setOnClickListener(v -> {
             monthViewCellClicked = false;
             weekViewCellClicked = false;
             setWeek();
         });
+
         dayViewBtn.setOnClickListener(v -> {
             monthViewCellClicked = false;
             weekViewCellClicked = false;
             setDaily();
         });
+
         listViewBtn.setOnClickListener(v -> {
             monthViewCellClicked = false;
             weekViewCellClicked = false;
+            showProgressBar();
+            showListViewRecyclerView.setVisibility(View.GONE);
             viewListViewItems();
         });
-        viewPagerRegister();
-
-
     }
+
 
 
 
@@ -281,14 +327,20 @@ public class MainActivity extends AppCompatActivity {
         weekViewBtn = findViewById(R.id.week_button);
         dayViewBtn = findViewById(R.id.day_button);
         listViewBtn = findViewById(R.id.list_button);
-
+        progressBar = findViewById(R.id.progressBarMain);
         viewPager = findViewById(R.id.viewPager);
         showListViewRecyclerView = findViewById(R.id.showListViewRecyclerView);
         frameLayout = findViewById(R.id.mainCalendarViewsRelativeLayout);
         primaryFab = findViewById(R.id.activity_basic_primary_fab);
     }
 
+    private void showProgressBar() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
 
+    private void hideProgressBar() {
+        progressBar.setVisibility(View.GONE);
+    }
     public void setToolbar() {
 
         toolbar = findViewById(R.id.calendar_toolbar);
@@ -323,20 +375,30 @@ public class MainActivity extends AppCompatActivity {
                         // Mode 0: Month view
                         YearMonth positionDate = monthsInOrder.get(position);
                         selectedDate = positionDate.atDay(1);
-                        setToolbarTitle();
+                        if (position!=0)
+                        {
+                            setToolbarTitle();
+                        }
                         break;
                     }
                     case WEEK_VIEW: {
                         // Mode 1: Week view
                         selectedDate = weeksStartingFromMonday.get(position);
-                        setToolbarTitle();
+                        if (position!=0)
+                        {
+                            setToolbarTitle();
+                        }
+
 
                         break;
                     }
                     case DAY_VIEW: {
                         // Mode 2: Day view
                         selectedDate = daysStartingFromMonday.get(position);
-                        setToolbarTitle();
+                        if (position!=0)
+                        {
+                            setToolbarTitle();
+                        }
                         break;
                     }
                 }
@@ -413,7 +475,7 @@ public class MainActivity extends AppCompatActivity {
 
     //------------Set Views----------------------------
     private void setMonth() {
-
+        showProgressBar();
 
 // Get the LayoutParams of each floating action button
         CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
@@ -438,6 +500,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setWeek() {
+        showProgressBar();
+
 // Get the LayoutParams of each floating action button
         CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
 
@@ -469,6 +533,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setDaily() {
+        showProgressBar();
+
 // Get the LayoutParams of each floating action button
         CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
 
@@ -507,11 +573,26 @@ public class MainActivity extends AppCompatActivity {
 
     //Set viewpager adapter, offscreenPageLimit=How many viewpager pages stay in memory
     private void setViewPager(CalendarViewPagerAdapter adapter, int initialPosition) {
-        viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(1);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
+        executor.execute(() -> {
+            // Perform any non-UI work (e.g., data preparation) here if needed
 
-        setCurrentItemCurrentDayAction(initialPosition);
+            // UI-related tasks must be executed on the main thread
+            runOnUiThread(() -> {
+
+                viewPager.setAdapter(adapter);
+                viewPager.setOffscreenPageLimit(1);
+                setCurrentItemCurrentDayAction(initialPosition);
+                // Hide the ProgressBar after the ViewPager is ready
+                hideProgressBar();
+            });
+        });
+//        new Handler().postDelayed(() -> {
+//            // Setup your ViewPager here
+//
+//        }, 1000);
+
 
     }
 
@@ -547,37 +628,54 @@ public class MainActivity extends AppCompatActivity {
 
     //Setter of listview
     private void viewListViewItems() {
-        frameLayout.setVisibility(View.GONE);
-        showListViewRecyclerView.setVisibility(View.VISIBLE);
 
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        executor.execute(() -> {
+            // Perform any non-UI work (e.g., data preparation) here if needed
+
+            // UI-related tasks must be executed on the main thread
+            runOnUiThread(() -> {
+
+                frameLayout.setVisibility(View.GONE);
+                showListViewRecyclerView.setVisibility(View.VISIBLE);
 
 // Get the LayoutParams of each floating action button
-        CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
+                CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
 
 // Set the anchor view for each floating action button to the ListView
-        primaryLayoutParams.setAnchorId(showListViewRecyclerView.getId());
+                primaryLayoutParams.setAnchorId(showListViewRecyclerView.getId());
 
 // Update the LayoutParams for each floating action button
-        primaryFab.setLayoutParams(primaryLayoutParams);
+                primaryFab.setLayoutParams(primaryLayoutParams);
 
-        modeCalendar = LISTVIEW_VIEW;
-        startToolbarCalendarView();
-        setToolbarTitle();
+                modeCalendar = LISTVIEW_VIEW;
+                startToolbarCalendarView();
+                setToolbarTitle();
 
 
-        if (!EventsData.isEmpty()) {
-            CalendarEventActionItemAdapterListView listView = new CalendarEventActionItemAdapterListView(getApplicationContext(), EventsData, true);
-            showListViewRecyclerView.setAdapter(listView);
-        }
-
-        //TempEvent is the event that is selected from the listview, it is saved so when the user choose an event from dayview to stay on screen as selection
-        if (!(CalendarViews.tempCalendarEvent == null)) {
-            for (int i = 0; i < EventsData.size(); i++) {
-                if (Objects.equals(EventsData.get(i).getId(), CalendarViews.tempCalendarEvent.getId())) {
-                    showListViewRecyclerView.setSelection(i);
+                if (!EventsData.isEmpty()) {
+                    CalendarEventActionItemAdapterListView listView = new CalendarEventActionItemAdapterListView(getApplicationContext(), EventsData, true);
+                    showListViewRecyclerView.setAdapter(listView);
                 }
-            }
-        }
+
+                //TempEvent is the event that is selected from the listview, it is saved so when the user choose an event from dayview to stay on screen as selection
+                if (!(CalendarViews.tempCalendarEvent == null)) {
+                    for (int i = 0; i < EventsData.size(); i++) {
+                        if (Objects.equals(EventsData.get(i).getId(), CalendarViews.tempCalendarEvent.getId())) {
+                            showListViewRecyclerView.setSelection(i);
+                        }
+                    }
+                }
+
+
+                hideProgressBar();
+
+            });
+        });
+
+
+
 
 
     }
