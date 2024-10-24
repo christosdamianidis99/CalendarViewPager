@@ -106,18 +106,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         myActivity=MainActivity.this;
+        db = new DatabaseHelper(MainActivity.this);
 
-
-
-
-        // Initialize database in a background thread
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-
-
-
-            // Update UI on main thread after loading events
-            runOnUiThread(() -> {
                 // Initialize UI elements
                 initWidgets();
                 setFloatingActionButtons();
@@ -129,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 PermissionManager.requestAllPermissionsIfNeeded(this);
 
 
-                db = new DatabaseHelper(MainActivity.this);
+
                 EventsData = db.getAllCalendarEvents();
 
 
@@ -141,8 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 viewPagerRegister();
                 // Set onClick listeners (no database or long operation involved here)
                 setupViewModeButtons();
-            });
-        });
+
 
 
 
@@ -212,9 +201,9 @@ public class MainActivity extends AppCompatActivity {
         View contentView = getLayoutInflater().inflate(R.layout.calendar_dropdown, null);
         isCalendarPopUpViewPressed = true;
         setToolbarTitle();
+
         // Get the CalendarView from the inflated layout
         CalendarView calendarView = contentView.findViewById(R.id.calendarView);
-
 
         // Set the OnDateChangeListener for the CalendarView
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
@@ -224,32 +213,34 @@ public class MainActivity extends AppCompatActivity {
             LocalDateTime startOfDay = calendarViewSelectedDate.atStartOfDay();
             selectedDate = startOfDay.toLocalDate();
 
-            switch (modeCalendar) {
-                case 1:
-                    setWeek();
-                    break;
-                case 2:
-                    setDaily();
-                    break;
-                default:
-                    setMonth();
-                    break;
-            }
-//                dismissCalendarPopup();
+            // Switch calendar modes based on current mode
+            runOnUiThread(() -> {
+                switch (modeCalendar) {
+                    case WEEK_VIEW:
+                        setWeek();
+                        break;
+                    case DAY_VIEW:
+                        setDaily();
+                        break;
+                    default:
+                        setMonth();
+                        break;
+                }
+            });
         });
 
         // Create the popup window
         calendarPopup = new PopupWindow(contentView, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        // Add a listener to wait for the layout to be drawn
-
 
         // Set the callback to adjust the layout when the popup window is dismissed
         calendarPopup.setOnDismissListener(() -> {
-            // Adjust the layout when the popup window is dismissed
-            adjustLayoutForPopup(false, contentView);
-            isCalendarPopUpViewPressed = false;
-            setToolbarTitle();
+            // Ensure this runs on the UI thread
+            runOnUiThread(() -> {
+                adjustLayoutForPopup(false, contentView);
+                isCalendarPopUpViewPressed = false;
+                setToolbarTitle();
+            });
         });
 
         // Show the popup window below the anchor view
@@ -257,8 +248,36 @@ public class MainActivity extends AppCompatActivity {
 
         // Adjust the layout to make the FrameLayout be below the popup window
         adjustLayoutForPopup(true, contentView);
+    }
 
+    private void adjustLayoutForPopup(boolean popupShown, View contentView) {
+        if (frameLayout != null) {
+            if (popupShown) {
+                // Ensure layout changes occur on the UI thread
+                runOnUiThread(() -> {
+                    ViewTreeObserver vto = contentView.getViewTreeObserver();
+                    vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            // Remove the listener to prevent it from being called multiple times
+                            contentView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
+                            // Adjust the top margin to match the height of the popup window
+                            RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
+                            layoutParams.topMargin = contentView.getHeight();
+                            frameLayout.setLayoutParams(layoutParams);
+                        }
+                    });
+                });
+            } else {
+                // Reset layout parameters on the UI thread
+                runOnUiThread(() -> {
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
+                    layoutParams.topMargin = 0;
+                    frameLayout.setLayoutParams(layoutParams);
+                });
+            }
+        }
     }
 
 
@@ -268,37 +287,6 @@ public class MainActivity extends AppCompatActivity {
         PermissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
     }
 
-    private void adjustLayoutForPopup(boolean popupShown, View contentView) {
-//        FrameLayout
-//                frameLayout = findViewById(R.id.frameLayout);
-        if (frameLayout != null) {
-            if (popupShown) {
-
-
-                ViewTreeObserver vto = contentView.getViewTreeObserver();
-                vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        // Remove the listener to prevent it from being called multiple times
-                        contentView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-
-                        // Set layout parameters to move the FrameLayout below the popup window
-                        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
-
-                        layoutParams.topMargin = contentView.getHeight(); // Adjust the top margin to match the height of the popup window
-                        frameLayout.setLayoutParams(layoutParams);
-                        // Use the height as needed
-                    }
-                });
-
-            } else {
-                // Reset layout parameters to their original values
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) frameLayout.getLayoutParams();
-                layoutParams.topMargin = 0;
-                frameLayout.setLayoutParams(layoutParams);
-            }
-        }
-    }
 
     //Setting the title of supportActionBar
     private void setToolbarTitle() {
@@ -475,31 +463,49 @@ public class MainActivity extends AppCompatActivity {
 
     //------------Set Views----------------------------
     private void setMonth() {
-        showProgressBar();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
+        executor.execute(() -> {
+            // Perform any non-UI work (e.g., data preparation) here if needed
+
+            // UI-related tasks must be executed on the main thread
+            runOnUiThread(() -> {
+                showProgressBar();
 // Get the LayoutParams of each floating action button
-        CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
-
+                CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
 // Set the anchor view for each floating action button to the ViewPager
-        primaryLayoutParams.setAnchorId(viewPager.getId());
-
+                primaryLayoutParams.setAnchorId(viewPager.getId());
 // Update the LayoutParams for each floating action button
-        primaryFab.setLayoutParams(primaryLayoutParams);
+                primaryFab.setLayoutParams(primaryLayoutParams);
 
-        modeCalendar = MONTH_VIEW;
-        if (selectedDate == null) {
-            selectedDate = LocalDate.now();
-        }
+                modeCalendar = MONTH_VIEW;
+                if (selectedDate == null) {
+                    selectedDate = LocalDate.now();
+                }
 
-        initVisibilitiesCalendarViews();
-        startToolbarCalendarView();
-        YearMonth nowYearMonth = YearMonth.from(selectedDate);
-        initialPosition = CalendarUtils.monthsInOrder().indexOf(nowYearMonth);
-        CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
-        setViewPager(adapter, initialPosition);
+                initVisibilitiesCalendarViews();
+                startToolbarCalendarView();
+                YearMonth nowYearMonth = YearMonth.from(selectedDate);
+                initialPosition = CalendarUtils.monthsInOrder().indexOf(nowYearMonth);
+
+
+                CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
+                setViewPager(adapter, initialPosition);
+
+            });
+        });
+
+
     }
 
     private void setWeek() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        executor.execute(() -> {
+            // Perform any non-UI work (e.g., data preparation) here if needed
+
+            // UI-related tasks must be executed on the main thread
+            runOnUiThread(() -> {
         showProgressBar();
 
 // Get the LayoutParams of each floating action button
@@ -530,9 +536,19 @@ public class MainActivity extends AppCompatActivity {
 
         CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
         setViewPager(adapter, initialPosition);
+
+            });
+        });
     }
 
     public void setDaily() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        executor.execute(() -> {
+            // Perform any non-UI work (e.g., data preparation) here if needed
+
+            // UI-related tasks must be executed on the main thread
+            runOnUiThread(() -> {
         showProgressBar();
 
 // Get the LayoutParams of each floating action button
@@ -555,6 +571,56 @@ public class MainActivity extends AppCompatActivity {
 
         CalendarViewPagerAdapter adapter = new CalendarViewPagerAdapter(EventsData);
         setViewPager(adapter, initialPosition);
+            });
+        });
+
+    }
+    //Setter of listview
+    private void viewListViewItems() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        executor.execute(() -> {
+            // Perform any non-UI work (e.g., data preparation) here if needed
+
+            // UI-related tasks must be executed on the main thread
+            runOnUiThread(() -> {
+
+        frameLayout.setVisibility(View.GONE);
+        showListViewRecyclerView.setVisibility(View.VISIBLE);
+
+// Get the LayoutParams of each floating action button
+        CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
+// Set the anchor view for each floating action button to the ListView
+        primaryLayoutParams.setAnchorId(showListViewRecyclerView.getId());
+// Update the LayoutParams for each floating action button
+        primaryFab.setLayoutParams(primaryLayoutParams);
+
+        modeCalendar = LISTVIEW_VIEW;
+        startToolbarCalendarView();
+        setToolbarTitle();
+
+
+        if (!EventsData.isEmpty()) {
+            CalendarEventActionItemAdapterListView listView = new CalendarEventActionItemAdapterListView(getApplicationContext(), EventsData, true);
+            showListViewRecyclerView.setAdapter(listView);
+        }
+
+        //TempEvent is the event that is selected from the listview, it is saved so when the user choose an event from dayview to stay on screen as selection
+        if (!(CalendarViews.tempCalendarEvent == null)) {
+            for (int i = 0; i < EventsData.size(); i++) {
+                if (Objects.equals(EventsData.get(i).getId(), CalendarViews.tempCalendarEvent.getId())) {
+                    showListViewRecyclerView.setSelection(i);
+                }
+            }
+        }
+
+
+        hideProgressBar();
+
+
+            });
+        });
+
 
 
     }
@@ -573,25 +639,15 @@ public class MainActivity extends AppCompatActivity {
 
     //Set viewpager adapter, offscreenPageLimit=How many viewpager pages stay in memory
     private void setViewPager(CalendarViewPagerAdapter adapter, int initialPosition) {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-        executor.execute(() -> {
-            // Perform any non-UI work (e.g., data preparation) here if needed
-
-            // UI-related tasks must be executed on the main thread
-            runOnUiThread(() -> {
 
                 viewPager.setAdapter(adapter);
                 viewPager.setOffscreenPageLimit(1);
                 setCurrentItemCurrentDayAction(initialPosition);
                 // Hide the ProgressBar after the ViewPager is ready
                 hideProgressBar();
-            });
-        });
-//        new Handler().postDelayed(() -> {
-//            // Setup your ViewPager here
-//
-//        }, 1000);
+
+
 
 
     }
@@ -626,59 +682,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    //Setter of listview
-    private void viewListViewItems() {
 
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        executor.execute(() -> {
-            // Perform any non-UI work (e.g., data preparation) here if needed
-
-            // UI-related tasks must be executed on the main thread
-            runOnUiThread(() -> {
-
-                frameLayout.setVisibility(View.GONE);
-                showListViewRecyclerView.setVisibility(View.VISIBLE);
-
-// Get the LayoutParams of each floating action button
-                CoordinatorLayout.LayoutParams primaryLayoutParams = (CoordinatorLayout.LayoutParams) primaryFab.getLayoutParams();
-
-// Set the anchor view for each floating action button to the ListView
-                primaryLayoutParams.setAnchorId(showListViewRecyclerView.getId());
-
-// Update the LayoutParams for each floating action button
-                primaryFab.setLayoutParams(primaryLayoutParams);
-
-                modeCalendar = LISTVIEW_VIEW;
-                startToolbarCalendarView();
-                setToolbarTitle();
-
-
-                if (!EventsData.isEmpty()) {
-                    CalendarEventActionItemAdapterListView listView = new CalendarEventActionItemAdapterListView(getApplicationContext(), EventsData, true);
-                    showListViewRecyclerView.setAdapter(listView);
-                }
-
-                //TempEvent is the event that is selected from the listview, it is saved so when the user choose an event from dayview to stay on screen as selection
-                if (!(CalendarViews.tempCalendarEvent == null)) {
-                    for (int i = 0; i < EventsData.size(); i++) {
-                        if (Objects.equals(EventsData.get(i).getId(), CalendarViews.tempCalendarEvent.getId())) {
-                            showListViewRecyclerView.setSelection(i);
-                        }
-                    }
-                }
-
-
-                hideProgressBar();
-
-            });
-        });
-
-
-
-
-
-    }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     protected void setFloatingActionButtons() {

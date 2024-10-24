@@ -31,7 +31,6 @@ public class CalendarViewPagerAdapter extends RecyclerView.Adapter<CalendarViewP
 
     ArrayList<LocalDateTime> nowMonth = new ArrayList<>();
     ArrayList<LocalDateTime> nowWeek = new ArrayList<>();
-    int position;
 
     public CalendarViewPagerAdapter(ArrayList<CalendarEvent> events) {
 
